@@ -7,8 +7,8 @@ void ofApp::setup(){
 	//frameByframe = false;
 
     // try to grab at this size
-    camWidth = 320;
-    camHeight = 240;
+    camWidth = 1024;
+    camHeight = 768;
     
     vidGrabber.setVerbose(true);
     vidGrabber.setup(camWidth,camHeight);
@@ -32,10 +32,17 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-	ofSetHexColor(0xFFFFFF);
+    // set a white fill color with the alpha generated above
+    ofSetColor(255,255,255,63);
+
+    // draw the raw video frame with the alpha value generated above
+    vidGrabber.draw(0,0);	
+
+    ofSetHexColor(0xFFFFFF);
 
     //fingerMovie.draw(20,20);
-    vidGrabber.draw(20,20);
+    //vidGrabber.draw(20,20);
+
     ofSetHexColor(0x000000);
     //ofPixels & pixels = fingerMovie.getPixels();
     ofPixels & pixels = vidGrabber.getPixels();
@@ -48,9 +55,9 @@ void ofApp::draw(){
     // using the red pixel to control the size of a circle.
     for (int i = 4; i < vidWidth; i+=8){
         for (int j = 4; j < vidHeight; j+=8){
-            unsigned char r = pixels[(j * 320 + i)*nChannels];
+            unsigned char r = pixels[(j * vidWidth + i)*nChannels];
             float val = 1 - ((float)r / 255.0f);
-			ofDrawCircle(400 + i,20+j,10*val);
+			ofDrawCircle(i,j,10*val);
         }
     }
 
