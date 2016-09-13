@@ -22,7 +22,11 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);		
 
-		ofVideoPlayer 		fingerMovie;
-		bool                frameByframe;
+		ofVideoGrabber vidGrabber;
+		int camWidth;
+		int camHeight;
+
+		//ofVideoPlayer 		fingerMovie;
+		//bool                frameByframe;
 };
 

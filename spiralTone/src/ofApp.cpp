@@ -3,20 +3,30 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofBackground(255,255,255);
-	ofSetVerticalSync(true);
-	frameByframe = false;
+	//ofSetVerticalSync(true);
+	//frameByframe = false;
+
+    // try to grab at this size
+    camWidth = 320;
+    camHeight = 240;
+    
+    vidGrabber.setVerbose(true);
+    vidGrabber.setup(camWidth,camHeight);
 
 	// Uncomment this to show movies with alpha channels
 	// fingerMovie.setPixelFormat(OF_PIXELS_RGBA);
 
-	fingerMovie.load("movies/fingers.mov");
-	fingerMovie.setLoopState(OF_LOOP_NORMAL);
-	fingerMovie.play();
+	//fingerMovie.load("movies/fingers.mov");
+	//fingerMovie.setLoopState(OF_LOOP_NORMAL);
+	//fingerMovie.play();
+
+    ofEnableAlphaBlending(); // necessary???
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    fingerMovie.update();
+    //fingerMovie.update();
+    vidGrabber.update();
 }
 
 //--------------------------------------------------------------
@@ -24,9 +34,11 @@ void ofApp::draw(){
 
 	ofSetHexColor(0xFFFFFF);
 
-    fingerMovie.draw(20,20);
+    //fingerMovie.draw(20,20);
+    vidGrabber.draw(20,20);
     ofSetHexColor(0x000000);
-    ofPixels & pixels = fingerMovie.getPixels();
+    //ofPixels & pixels = fingerMovie.getPixels();
+    ofPixels & pixels = vidGrabber.getPixels();
 
     int vidWidth = pixels.getWidth();
     int vidHeight = pixels.getHeight();
@@ -42,42 +54,21 @@ void ofApp::draw(){
         }
     }
 
-
-    ofSetHexColor(0x000000);
-	ofDrawBitmapString("press f to change",20,320);
-    if(frameByframe) ofSetHexColor(0xCCCCCC);
-    ofDrawBitmapString("mouse speed position",20,340);
-    if(!frameByframe) ofSetHexColor(0xCCCCCC); else ofSetHexColor(0x000000);
-    ofDrawBitmapString("keys <- -> frame by frame " ,190,340);
-    ofSetHexColor(0x000000);
-
-    ofDrawBitmapString("frame: " + ofToString(fingerMovie.getCurrentFrame()) + "/"+ofToString(fingerMovie.getTotalNumFrames()),20,380);
-    ofDrawBitmapString("duration: " + ofToString(fingerMovie.getPosition()*fingerMovie.getDuration(),2) + "/"+ofToString(fingerMovie.getDuration(),2),20,400);
-    ofDrawBitmapString("speed: " + ofToString(fingerMovie.getSpeed(),2),20,420);
-
-    if(fingerMovie.getIsMovieDone()){
-        ofSetHexColor(0xFF0000);
-        ofDrawBitmapString("end of movie",20,440);
-    }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed  (int key){
-    switch(key){
-        case 'f':
-            frameByframe=!frameByframe;
-            fingerMovie.setPaused(frameByframe);
-        break;
-        case OF_KEY_LEFT:
-            fingerMovie.previousFrame();
-        break;
-        case OF_KEY_RIGHT:
-            fingerMovie.nextFrame();
-        break;
-        case '0':
-            fingerMovie.firstFrame();
-        break;
+
+    // in fullscreen mode, on a pc at least, the 
+    // first time video settings the come up
+    // they come up *under* the fullscreen window
+    // use alt-tab to navigate to the settings
+    // window. we are working on a fix for this...
+    
+    if (key == 's' || key == 'S'){
+        vidGrabber.videoSettings();
     }
+
 }
 
 //--------------------------------------------------------------
@@ -87,36 +78,23 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
-	if(!frameByframe){
-        int width = ofGetWidth();
-        float pct = (float)x / (float)width;
-        float speed = (2 * pct - 1) * 5.0f;
-        fingerMovie.setSpeed(speed);
-	}
+
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
-	if(!frameByframe){
-        int width = ofGetWidth();
-        float pct = (float)x / (float)width;
-        fingerMovie.setPosition(pct);
-	}
+
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-	if(!frameByframe){
-        fingerMovie.setPaused(true);
-	}
+
 }
 
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-	if(!frameByframe){
-        fingerMovie.setPaused(false);
-	}
+
 }
 
 //--------------------------------------------------------------
