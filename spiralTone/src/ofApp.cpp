@@ -3,6 +3,9 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    ofSetVerticalSync(true);
+    ofSetFrameRate(120);
+
 	ofBackground(255,255,255);
 	//ofSetVerticalSync(true);
 	//frameByframe = false;
@@ -15,11 +18,20 @@ void ofApp::setup(){
     vidGrabber.setup(camWidth,camHeight);
 
     ofEnableAlphaBlending(); // necessary???
+
+    smile.setup();
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     vidGrabber.update();
+    if(vidGrabber.isFrameNew()) {
+        smile.update(vidGrabber);
+        if(smile.getFaceFound()) {
+            float cur = smile.getSmileAmount();
+            ofLog() << cur;
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -33,7 +45,7 @@ void ofApp::draw(){
     ofSetColor(255,255,255,63);
 
     // draw the raw video frame with the alpha value generated above
-    vidGrabber.draw(16,16);	
+    vidGrabber.draw(0,0);	
 
     ofSetHexColor(0x000000);
     ofPixels & pixels = vidGrabber.getPixels();
@@ -53,7 +65,7 @@ void ofApp::draw(){
    //  }
 
     drawSpiral(camWidth/2, camHeight/2, 300, numdots, 0.625, pixels);
-
+    smile.draw();
 }
 
 //--------------------------------------------------------------
@@ -93,7 +105,7 @@ void ofApp::drawSpiral(int cx, int cy, float radius,
         unsigned char r = pixels[(int(y) * vidWidth + x)*nChannels];
         float val = 1 - ((float)r / 255.0f);
 
-        ofDrawCircle(16+x, 16+y, smRadius*val*dotcf);
+        ofDrawCircle(x, y, smRadius*val*dotcf);
     }
 }
 
