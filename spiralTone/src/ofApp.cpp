@@ -52,13 +52,14 @@ void ofApp::draw(){
    //      }
    //  }
 
-    drawSpiral((camWidth/2)+16, (camHeight/2)+16, 300, numdots, 0.625);
+    drawSpiral(camWidth/2, camHeight/2, 300, numdots, 0.625, pixels);
 
 }
 
 //--------------------------------------------------------------
 void ofApp::drawSpiral(int cx, int cy, float radius, 
-                       int numdots, float deviation){
+                       int numdots, float deviation,
+                       ofPixels & pixels){
 
     float phi = ((sqrt(5) + 1) / 2) - 1;
     float goldenFraction = phi * 2 * PI;
@@ -71,7 +72,11 @@ void ofApp::drawSpiral(int cx, int cy, float radius,
 
     float areaFilled = 0;
 
-    float dotcf = 0.87; // dots dont really fill space
+    float dotcf = 1.1; // dots dont really fill space
+
+    int vidWidth = pixels.getWidth();
+    int vidHeight = pixels.getHeight();
+    int nChannels = pixels.getNumChannels();
 
     for (int i = 1; i < numdots; i++){
         float angle = i * goldenFraction;
@@ -85,7 +90,10 @@ void ofApp::drawSpiral(int cx, int cy, float radius,
         float x = cx + cos(angle) * spiralRadius;
         float y = cy + sin(angle) * spiralRadius;
 
-        ofDrawCircle(x, y, smRadius*dotcf);
+        unsigned char r = pixels[(int(y) * vidWidth + x)*nChannels];
+        float val = 1 - ((float)r / 255.0f);
+
+        ofDrawCircle(16+x, 16+y, smRadius*val*dotcf);
     }
 }
 
