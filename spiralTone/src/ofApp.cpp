@@ -13,6 +13,8 @@ void ofApp::setup(){
     // try to grab at this size
     camWidth = 1024;
     camHeight = 768;
+
+    hasFace = false;
     
     vidGrabber.setVerbose(true);
     vidGrabber.setup(camWidth,camHeight);
@@ -28,8 +30,16 @@ void ofApp::update(){
     if(vidGrabber.isFrameNew()) {
         smile.update(vidGrabber);
         if(smile.getFaceFound()) {
+            hasFace = true;
+            ofRectangle fRect = smile.getFace();
+            glm::vec3 fCntr = fRect.getCenter();
+            faceX = fCntr.x;
+            faceY = fCntr.y;
+
             float cur = smile.getSmileAmount();
             ofLog() << cur;
+        } else {
+            hasFace = false;
         }
     }
 }
@@ -63,9 +73,10 @@ void ofApp::draw(){
 			// ofDrawCircle(16+i,16+j,dotRadius*val*2);
    //      }
    //  }
-
-    drawSpiral(camWidth/2, camHeight/2, 300, numdots, 0.625, pixels);
-    smile.draw();
+    if (hasFace) {
+        drawSpiral(faceX, faceY, 300, numdots, 0.625, pixels);
+        smile.draw();
+    }
 }
 
 //--------------------------------------------------------------

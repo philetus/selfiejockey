@@ -82,6 +82,11 @@ class ofApp : public ofBaseApp{
 
 		ofVideoGrabber vidGrabber;
 		SmileDetector smile;
+		
+		bool hasFace;
+		float faceX;
+		float faceY;
+
 		int camWidth;
 		int camHeight;
 
