@@ -9,6 +9,7 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+		void drawSpiral(int cx, int cy, float radius, int numdots, float deviation);
 		
 		void keyPressed(int key);
 		void keyReleased(int key);
