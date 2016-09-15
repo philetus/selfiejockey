@@ -2,20 +2,20 @@
 
 #include "ofMain.h"
 #include "ofxCv.h"
+#include "float.h"
 
 // single-person smile strength detector
 // not robust against rotation
 class SmileDetector {
 protected:
     ofRectangle roi;
-    ofRectangle smileRect;
     
 public:
     ofxCv::ObjectFinder faceFinder, smileFinder;
     bool hasFace;
-    bool hasSmile;
     float faceX, faceY, faceRadius;
     float smileness;
+    int smilebright;
     
     void setup() {
         hasFace = false;
@@ -53,13 +53,7 @@ public:
             faceRadius = fRect.getWidth();
 
             smileness = smileFinder.size();
-            if (smileness > 200) {
-                hasSmile = true;
-                smileRect = ofRectangle(smileFinder.getObject(0));
-                smileRect.translate(roi.position);
-            } else {
-                hasSmile = false;
-            }
+            smilebright = int(ofMap(log(smileness), 0, 7, 0, 255, true));
             
         } else {
             hasFace = false;
@@ -87,16 +81,6 @@ public:
             return 0;
         }
     }
-    bool isSmiley(float x, float y) const {
-    	if (hasSmile) {
-    		if (x < smileRect.getMinX()) return false;
-    		if (x > smileRect.getMaxX()) return false;
-    		if (y < smileRect.getMinY()) return false;
-    		if (y > smileRect.getMaxY()) return false;
-    		return true;
-    	}
-    	return false;
-    }
 };
 
 class ofApp : public ofBaseApp{
@@ -106,7 +90,7 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
-		void drawSpiral(int numdots, int smileColor, ofPixels & pixels);
+		void drawSpiral(int numdots, ofColor smileColor, ofPixels & pixels);
 		
 		void keyPressed(int key);
 		void keyReleased(int key);

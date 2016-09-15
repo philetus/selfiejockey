@@ -7,8 +7,6 @@ void ofApp::setup(){
     ofSetFrameRate(120);
 
 	ofBackground(255,255,255);
-	//ofSetVerticalSync(true);
-	//frameByframe = false;
 
     // try to grab at this size
     camWidth = 1024;
@@ -28,8 +26,7 @@ void ofApp::update(){
     if(vidGrabber.isFrameNew()) {
         smile.update(vidGrabber);
         if(smile.hasFace) {
-
-            ofLog() << smile.smileness;
+            ofLog() << smile.smilebright;
         }
     }
 }
@@ -40,7 +37,8 @@ void ofApp::draw(){
     // change halftone dot size based on cursors x location
     //float dotRadius = ofMap(mouseX, 0, ofGetWidth(), 3, 12, true);
     float numdots = ofMap(mouseX, 0, ofGetWidth(), 64, 4096, true);
-    int smileColor = 0xffff00;
+    ofColor smileColor = ofColor::fromHsb(
+        ofMap(mouseY, 0, ofGetHeight(), 0, 255, true), 255, smile.smilebright);
 
     // set a white fill color with the alpha generated above
     ofSetColor(255,255,255,31);
@@ -50,27 +48,15 @@ void ofApp::draw(){
 
     ofPixels & pixels = vidGrabber.getPixels();
 
-    int vidWidth = pixels.getWidth();
-    int vidHeight = pixels.getHeight();
-    int nChannels = pixels.getNumChannels();
-    
-    // let's move through the "RGB(A)" char array
-    // using the red pixel to control the size of a circle.
-   //  for (int i = dotRadius; i < vidWidth; i+=(dotRadius*2)){
-   //      for (int j = dotRadius; j < vidHeight; j+=(dotRadius*2)){
-   //          unsigned char r = pixels[(j * vidWidth + i)*nChannels];
-   //          float val = 1 - ((float)r / 255.0f);
-			// ofDrawCircle(16+i,16+j,dotRadius*val*2);
-   //      }
-   //  }
     if (smile.hasFace) {
+        ofSetColor(smileColor);
         drawSpiral(numdots, smileColor, pixels);
-        //smile.draw();
+        //smile.draw(); // uncomment to draw face & smile boxes
     }
 }
 
 //--------------------------------------------------------------
-void ofApp::drawSpiral(int numdots, int smileColor, ofPixels & pixels){
+void ofApp::drawSpiral(int numdots, ofColor smileColor, ofPixels & pixels){
 
     int cx = int(smile.faceX);
     int cy = int(smile.faceY);
@@ -109,11 +95,6 @@ void ofApp::drawSpiral(int numdots, int smileColor, ofPixels & pixels){
         unsigned char r = pixels[(int(y) * vidWidth + x)*nChannels];
         float val = 1 - ((float)r / 255.0f);
 
-        if (smile.isSmiley(x, y)) {
-            ofSetHexColor(smileColor);
-        } else {
-            ofSetHexColor(0x000000);
-        }
         ofDrawCircle(x, y, smRadius*val*dotcf);
     }
 }
