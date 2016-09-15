@@ -13,8 +13,6 @@ void ofApp::setup(){
     // try to grab at this size
     camWidth = 1024;
     camHeight = 768;
-
-    hasFace = false;
     
     vidGrabber.setVerbose(true);
     vidGrabber.setup(camWidth,camHeight);
@@ -29,18 +27,9 @@ void ofApp::update(){
     vidGrabber.update();
     if(vidGrabber.isFrameNew()) {
         smile.update(vidGrabber);
-        if(smile.getFaceFound()) {
-            hasFace = true;
-            ofRectangle fRect = smile.getFace();
-            glm::vec3 fCntr = fRect.getCenter();
-            faceX = fCntr.x;
-            faceY = fCntr.y;
-            faceRadius = fRect.getWidth();
+        if(smile.hasFace) {
 
-            float cur = smile.getSmileAmount();
-            ofLog() << cur;
-        } else {
-            hasFace = false;
+            ofLog() << smile.smileness;
         }
     }
 }
@@ -51,14 +40,14 @@ void ofApp::draw(){
     // change halftone dot size based on cursors x location
     //float dotRadius = ofMap(mouseX, 0, ofGetWidth(), 3, 12, true);
     float numdots = ofMap(mouseX, 0, ofGetWidth(), 64, 4096, true);
+    int smileColor = 0xffff00;
 
     // set a white fill color with the alpha generated above
-    ofSetColor(255,255,255,63);
+    ofSetColor(255,255,255,31);
 
     // draw the raw video frame with the alpha value generated above
     vidGrabber.draw(0,0);	
 
-    ofSetHexColor(0x000000);
     ofPixels & pixels = vidGrabber.getPixels();
 
     int vidWidth = pixels.getWidth();
@@ -74,16 +63,19 @@ void ofApp::draw(){
 			// ofDrawCircle(16+i,16+j,dotRadius*val*2);
    //      }
    //  }
-    if (hasFace) {
-        drawSpiral(faceX, faceY, faceRadius, numdots, 0.625, pixels);
-        smile.draw();
+    if (smile.hasFace) {
+        drawSpiral(numdots, smileColor, pixels);
+        //smile.draw();
     }
 }
 
 //--------------------------------------------------------------
-void ofApp::drawSpiral(int cx, int cy, float radius, 
-                       int numdots, float deviation,
-                       ofPixels & pixels){
+void ofApp::drawSpiral(int numdots, int smileColor, ofPixels & pixels){
+
+    int cx = int(smile.faceX);
+    int cy = int(smile.faceY);
+    float radius = smile.faceRadius;
+    float deviation = 0.625;
 
     float phi = ((sqrt(5) + 1) / 2) - 1;
     float goldenFraction = phi * 2 * PI;
@@ -117,6 +109,11 @@ void ofApp::drawSpiral(int cx, int cy, float radius,
         unsigned char r = pixels[(int(y) * vidWidth + x)*nChannels];
         float val = 1 - ((float)r / 255.0f);
 
+        if (smile.isSmiley(x, y)) {
+            ofSetHexColor(smileColor);
+        } else {
+            ofSetHexColor(0x000000);
+        }
         ofDrawCircle(x, y, smRadius*val*dotcf);
     }
 }
