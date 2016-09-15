@@ -35,6 +35,7 @@ void ofApp::update(){
             glm::vec3 fCntr = fRect.getCenter();
             faceX = fCntr.x;
             faceY = fCntr.y;
+            faceRadius = fRect.getWidth();
 
             float cur = smile.getSmileAmount();
             ofLog() << cur;
@@ -49,7 +50,7 @@ void ofApp::draw(){
 
     // change halftone dot size based on cursors x location
     //float dotRadius = ofMap(mouseX, 0, ofGetWidth(), 3, 12, true);
-    float numdots = ofMap(mouseX, 0, ofGetWidth(), 64, 1024, true);
+    float numdots = ofMap(mouseX, 0, ofGetWidth(), 64, 4096, true);
 
     // set a white fill color with the alpha generated above
     ofSetColor(255,255,255,63);
@@ -74,7 +75,7 @@ void ofApp::draw(){
    //      }
    //  }
     if (hasFace) {
-        drawSpiral(faceX, faceY, 300, numdots, 0.625, pixels);
+        drawSpiral(faceX, faceY, faceRadius, numdots, 0.625, pixels);
         smile.draw();
     }
 }
