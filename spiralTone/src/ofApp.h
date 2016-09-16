@@ -16,7 +16,7 @@ public:
     float faceX, faceY, faceRadius;
     float smileness;
     int smilebright;
-    
+
     void setup() {
         hasFace = false;
         faceX = 0;
@@ -106,9 +106,11 @@ class ofApp : public ofBaseApp{
 
 		ofVideoGrabber vidGrabber;
 		SmileDetector smile;
+        ofImage imgGrab;
 
 		int camWidth;
 		int camHeight;
+        bool drawOverlay;
 
 		//ofVideoPlayer 		fingerMovie;
 		//bool                frameByframe;

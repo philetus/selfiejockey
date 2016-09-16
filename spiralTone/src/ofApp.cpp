@@ -51,7 +51,9 @@ void ofApp::draw(){
     if (smile.hasFace) {
         ofSetColor(smileColor);
         drawSpiral(numdots, smileColor, pixels);
-        //smile.draw(); // uncomment to draw face & smile boxes
+        if (drawOverlay){
+            smile.draw(); // draw face & smile boxes
+        }
     }
 }
 
@@ -110,6 +112,17 @@ void ofApp::keyPressed(int key){
     
     if (key == 's' || key == 'S'){
         vidGrabber.videoSettings();
+    } else if (key == 'o' || key == 'O'){
+        if (drawOverlay){
+            drawOverlay = false;
+        } else {
+            drawOverlay = true;
+        }
+    } else if (key == ' '){
+        string fn = "grabs/spiralTone_" + ofGetTimestampString() + ".png";
+        ofLog() << fn;
+        imgGrab.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
+        imgGrab.save(fn);
     }
 
 }

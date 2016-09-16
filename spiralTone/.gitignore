@@ -37,6 +37,7 @@ tests/**/gcc-release/
 
 # OSX
 .DS_Store
+bin/.DS_Store
 *.swp
 *~.nib
 # Thumbnails
@@ -55,3 +56,8 @@ Desktop.ini
 
 # Android Studio
 *.iml
+
+# for spiraltone
+
+# ignore screen grabs folder
+bin/data/grabs/*
