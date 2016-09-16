@@ -119,10 +119,7 @@ void ofApp::keyPressed(int key){
             drawOverlay = true;
         }
     } else if (key == ' '){
-        string fn = "grabs/spiralTone_" + ofGetTimestampString() + ".png";
-        ofLog() << fn;
-        imgGrab.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
-        imgGrab.save(fn);
+        grabSelfie();
     }
 
 }
@@ -150,7 +147,7 @@ void ofApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-
+    grabSelfie();
 }
 
 //--------------------------------------------------------------

@@ -92,6 +92,13 @@ class ofApp : public ofBaseApp{
 		void draw();
 		void drawSpiral(int numdots, ofColor smileColor, ofPixels & pixels);
 		
+        void grabSelfie(){
+            string fn = "grabs/spiralTone_" + ofGetTimestampString() + ".png";
+            //ofLog() << fn;
+            imgGrab.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
+            imgGrab.save(fn);
+        }
+        
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
