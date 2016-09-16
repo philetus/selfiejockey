@@ -9,8 +9,8 @@ void ofApp::setup(){
 	ofBackground(255,255,255);
 
     // try to grab at this size
-    camWidth = 1024;
-    camHeight = 768;
+    camWidth = 1280;
+    camHeight = 720;
     
     vidGrabber.setVerbose(true);
     vidGrabber.setup(camWidth,camHeight);
@@ -26,7 +26,7 @@ void ofApp::update(){
     if(vidGrabber.isFrameNew()) {
         smile.update(vidGrabber);
         if(smile.hasFace) {
-            ofLog() << smile.smilebright;
+            //ofLog() << smile.smilebright;
         }
     }
 }
