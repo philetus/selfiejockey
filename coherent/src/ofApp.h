@@ -4,6 +4,7 @@
 #include "ofxGui.h"
 #include "ofxCv.h"
 #include "ofxOpenCv.h"
+#include "ofxDelaunay.h"
 
 class ofApp : public ofBaseApp{
 public:
@@ -41,9 +42,12 @@ public:
 	ofxCvColorImage live;
 	ofxCvGrayscaleImage input;
 	ofImage output, canny;
-	
+
+    ofxDelaunay delaunay;
+    ofVboMesh mesh;
+
     ofParameter<float> sigma1, sigma2, tau;
-    ofParameter<int> halfw, smoothPasses, black, thresh, cannyParam1, cannyParam2;
+    ofParameter<int> stride, noise, cannyParam1, cannyParam2;
     ofParameter<bool> doFDoG, doThresh, doThin, doCanny;
     
 	ofxPanel gui;
