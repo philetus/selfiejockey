@@ -32,7 +32,7 @@ void ofApp::update() {
         ofPixels & edgePixels = edgeImage.getPixels();
          
         //輪郭線を間引いて頂点として扱う
-        int up = 80;
+        int up = 43;
         for (int i=0; i<w*h; i+=up) {
             if (edgePixels[i] == 0){ continue;}
             else{
@@ -42,7 +42,7 @@ void ofApp::update() {
         }
         /********************************************************************************/
         //ランダムな点を増やす
-        for (int i=0; i<200; i++) {
+        for (int i=0; i<91; i++) {
             delaunay.addPoint(ofPoint(ofRandom(0, ofGetWidth()),ofRandom(0, ofGetHeight())));
         }
         //四隅の点
