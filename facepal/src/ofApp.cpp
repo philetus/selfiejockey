@@ -6,10 +6,15 @@ void ofApp::setup() {
 	ofSetVerticalSync(true);
 	camWdth = 1920;
 	camHght = 1080;
+	wnWdth = 1280;
+	wnHght = 720;
     setCam(&cam, "C920"); // try to find external webcam
 	cam.initGrabber(camWdth, camHght);
-	lftd.setup(ofRectangle(0,0,1080,1080));
-	rghtd.setup(ofRectangle(840,0,1080,1080));
+
+	camWdth = cam.getWidth();
+	camHght = cam.getHeight();
+	lftd.setup(ofRectangle(0,0,camWdth/2,camHght));
+	rghtd.setup(ofRectangle(camWdth/2,0,camWdth,camHght));
 }
 
 void ofApp::update() {

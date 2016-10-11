@@ -38,7 +38,7 @@ public:
         grabber->setDeviceID(useCam);
     }     
 
-    int camWdth, camHght;
+    int camWdth, camHght, wnWdth, wnHght;
 	ofVideoGrabber cam;
 	facedmn lftd, rghtd;
 		
