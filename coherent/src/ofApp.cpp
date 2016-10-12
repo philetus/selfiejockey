@@ -34,6 +34,7 @@ void ofApp::setup() {
     */
 	gui.add(stride.set("stride", 17, 11, 500));
 	gui.add(noise.set("noise", 100, 0, 1000));
+    gui.add(neg.set("neg", true));
     gui.add(doCanny.set("doCanny", true));
     gui.add(cannyParam1.set("cannyParam1", 400, 0, 1024));
     gui.add(cannyParam2.set("cannyParam2", 600, 0, 1024));
@@ -50,7 +51,11 @@ void ofApp::update(){
     	input.setFromColorImage(live);
 
 		Canny(input, canny, cannyParam1 * 2, cannyParam2 * 2, 5);
-		invert(canny);
+        int notEdgeVal = 0;
+        if (neg) {
+            invert(canny);
+            notEdgeVal = 255;
+        }
 		canny.update();
 
         ofPixels & edgePixels = canny.getPixels();
@@ -60,7 +65,7 @@ void ofApp::update(){
          
         int up = stride;
         for (int i=0; i<w*h; i+=up) {
-            if (edgePixels[i] >= 250){ continue;}
+            if (edgePixels[i] == notEdgeVal){ continue;}
             else{
                 int coordY = floor(i/w);
                 delaunay.addPoint(glm::vec3(i-w*coordY, coordY, 0));
@@ -113,15 +118,25 @@ void ofApp::draw(){
 	//output.draw(0, 0);
 	
 	//input.draw(0, 0);
-	if(doCanny){
+	if(doCanny && neg){
 		ofEnableBlendMode(OF_BLENDMODE_ALPHA);
 		canny.draw(0, 0);
 		ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
-	} else {
+        mesh.draw();
+	} else if (neg) {
+        ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
 		ofFill();
     	ofSetColor(255);
-	}
-	mesh.draw();
+        mesh.draw();
+	} else if (doCanny) {
+        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+        mesh.draw();
+        ofEnableBlendMode(OF_BLENDMODE_ADD);
+        canny.draw(0, 0);
+    } else {
+        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+        mesh.draw();
+    }
 	gui.draw();
 
 	

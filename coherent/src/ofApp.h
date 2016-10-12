@@ -48,7 +48,7 @@ public:
 
     ofParameter<float> sigma1, sigma2, tau;
     ofParameter<int> stride, noise, cannyParam1, cannyParam2;
-    ofParameter<bool> doFDoG, doThresh, doThin, doCanny;
+    ofParameter<bool> doFDoG, doThresh, doThin, doCanny, neg;
     
 	ofxPanel gui;
 };
