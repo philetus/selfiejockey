@@ -62,6 +62,5 @@ void Delaunify::update(ofPixels & edgePx, ofPixels & colorPx) {
 }
 
 void Delaunify::draw() {
-    ofSetColor(255,255,255,alpha);
     mesh.draw();    
 }

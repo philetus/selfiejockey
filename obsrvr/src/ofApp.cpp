@@ -41,6 +41,12 @@ void ofApp::update() {
 
         obs.update(cam.getPixels());
         if(obs.getForegroundMask(fgmsk)) {
+            Mat msk = toCv(fgmsk);
+
+            Mat k = getStructuringElement(MORPH_ELLIPSE, cv::Size(16, 16), cv::Point(-1,-1));
+            erode(msk, msk, cv::Mat(), cv::Point(-1, -1), 2, 1, 1);
+            dilate(msk, msk, k, cv::Point(-1, -1), 2, 1, 1);
+            fgmsk.update();
             contourFinder.setMinAreaRadius(minArea);
             contourFinder.setMaxAreaRadius(maxArea);
             contourFinder.setThreshold(threshold);
@@ -70,10 +76,14 @@ void ofApp::draw() {
         bgmdl.draw(0, 0);
     }
     */
-    dfy.draw();
     if(obs.getForegroundMask(fgmsk)) {
         fgmsk.draw(camWdth, 0);
     }
+    //ofPushMatrix();
+    ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
+    dfy.draw();
+    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+    //ofPopMatrix();
 
     contourFinder.draw();
 
