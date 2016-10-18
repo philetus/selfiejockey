@@ -22,6 +22,8 @@ void ofApp::setup() {
     gui.add(holes.set("Holes", true));
     gui.add(cannyParam1.set("cannyParam1", 400, 0, 1024));
     gui.add(cannyParam2.set("cannyParam2", 600, 0, 1024));
+    gui.add(dfy.stride);
+    gui.add(dfy.noise);
     /*
     gui.add(resetBackground.set("Reset Background", false));
     gui.add(learningTime.set("Learning Time", 30, 0, 30));
@@ -41,12 +43,15 @@ void ofApp::update() {
 
         obs.update(cam.getPixels());
         if(obs.getForegroundMask(fgmsk)) {
-            Mat msk = toCv(fgmsk);
 
-            Mat k = getStructuringElement(MORPH_ELLIPSE, cv::Size(16, 16), cv::Point(-1,-1));
-            erode(msk, msk, cv::Mat(), cv::Point(-1, -1), 2, 1, 1);
-            dilate(msk, msk, k, cv::Point(-1, -1), 2, 1, 1);
+            // erode & dilate mask before countour finding
+            Mat msk = toCv(fgmsk);
+            Mat kd = getStructuringElement(MORPH_ELLIPSE, cv::Size(6, 6), cv::Point(-1,-1));
+            Mat ke = getStructuringElement(MORPH_RECT, cv::Size(16, 16), cv::Point(-1,-1));
+            erode(msk, msk, kd, cv::Point(-1, -1), 1, 1, 1);
+            dilate(msk, msk, ke, cv::Point(-1, -1), 2, 1, 1);
             fgmsk.update();
+            
             contourFinder.setMinAreaRadius(minArea);
             contourFinder.setMaxAreaRadius(maxArea);
             contourFinder.setThreshold(threshold);
@@ -80,14 +85,23 @@ void ofApp::draw() {
         fgmsk.draw(camWdth, 0);
     }
     //ofPushMatrix();
-    ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
+    //ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
     dfy.draw();
-    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+    //ofEnableBlendMode(OF_BLENDMODE_ALPHA);
     //ofPopMatrix();
 
-    contourFinder.draw();
+    //contourFinder.draw();
+    for (int i = 0; i < contourFinder.size(); i++) {
+        std::vector<cv::Point> contour = contourFinder.getContour(i);
+        std::vector<cv::Point> simpleContour;
+        approxPolyDP(contour, simpleContour, 8, true);
+        ofPolyline p = toOf(simpleContour);
+        //ofPolyline p;
+        //p.addVertices(toOf(simpleContour), simpleContour.size());
+        p.draw();
+    }
 
-    //gui.draw();
+    gui.draw();
 
 
     //obs.draw();
