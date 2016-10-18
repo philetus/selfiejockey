@@ -14,7 +14,7 @@ class Delaunify {
 public:
 
     void setup(int w, int h);
-    void update(ofPixels & edgePx, ofPixels & colorPx);
+    void update(ofPixels & edgePx, ofPixels & colorPx, const std::vector<ofPolyline> & fgrs);
     void draw();
 
     int wdth, hght;

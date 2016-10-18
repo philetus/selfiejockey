@@ -12,7 +12,7 @@ void Delaunify::setup(int w, int h) {
     alpha.set("alpha", 63, 0, 255);
 }
 
-void Delaunify::update(ofPixels & edgePx, ofPixels & colorPx) {
+void Delaunify::update(ofPixels & edgePx, ofPixels & colorPx, const std::vector<ofPolyline> & fgrs) {
 
     delaunay.reset();
     mesh.clear();
@@ -27,7 +27,12 @@ void Delaunify::update(ofPixels & edgePx, ofPixels & colorPx) {
     }
 
     for (int i=0; i<noise; i++) {
-        delaunay.addPoint(ofPoint(ofRandom(0, wdth), ofRandom(0, hght)));
+        delaunay.addPoint(glm::vec3(ofRandom(0, wdth), ofRandom(0, hght), 0));
+    }
+
+    // add figures
+    for(int i = 0; i < fgrs.size(); i++) {
+        for(int j = 0; j < fgrs[i].size(); j++) delaunay.addPoint(fgrs[i][j]);
     }
 
     // add frame & triangulate
@@ -50,7 +55,13 @@ void Delaunify::update(ofPixels & edgePx, ofPixels & colorPx) {
         glm::vec3 gp = (v1+v2+v3)/3.0;
          
         ofColor color = colorPx.getColor((int)gp.x, (int)gp.y);
-         
+        color.a = alpha;
+
+        // if center is in a figure set alpha to 255
+        for(int i = 0; i < fgrs.size(); i++) {
+            if(fgrs[i].inside(gp)) color.a = 255;
+        }
+
         mesh.addVertex(v1);
         mesh.addVertex(v2);
         mesh.addVertex(v3);

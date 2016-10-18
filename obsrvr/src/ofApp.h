@@ -26,12 +26,7 @@ public:
     ofImage canny;
     
     ofxPanel gui;
-    ofParameter<float> minArea, maxArea, threshold;
-    ofParameter<bool> holes;   
     ofParameter<int> cannyParam1, cannyParam2; 
-
-    //ofParameter<bool> resetBackground;
-    //ofParameter<float> learningTime, thresholdValue;
 
     void setCam(ofVideoGrabber *grabber, std::string camName) {
         vector<ofVideoDevice> devices = grabber->listDevices();
