@@ -24,6 +24,7 @@ public:
     ofxCvColorImage live;
     ofxCvGrayscaleImage input;
     ofImage canny;
+    ofPixels scld;
     
     ofxPanel gui;
     ofParameter<int> cannyParam1, cannyParam2; 

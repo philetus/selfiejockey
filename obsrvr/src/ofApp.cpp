@@ -8,12 +8,15 @@ void ofApp::setup() {
     camHght = 720;
     setCam(&cam, "C920"); // try to find external webcam
 	cam.setup(camWdth, camHght);
+    camWdth = cam.getWidth();
+    camHght = cam.getHeight();
+    ofLogNotice() << "cam width: " << camWdth << " cam height: " << camHght << endl;
 
     dfy.setup(camWdth, camHght);
     ofBackground(255);
-    live.allocate(camWdth, camHght);
-    input.allocate(camWdth, camHght);
-    canny.allocate(camWdth, camHght, OF_IMAGE_GRAYSCALE);
+    live.allocate(camWdth / 2, camHght / 2);
+    input.allocate(camWdth / 2, camHght / 2);
+    canny.allocate(camWdth / 2, camHght / 2, OF_IMAGE_GRAYSCALE);
     
     gui.setup();
     gui.add(obs.minArea);
@@ -23,6 +26,7 @@ void ofApp::setup() {
     gui.add(cannyParam1.set("cannyParam1", 400, 0, 1024));
     gui.add(cannyParam2.set("cannyParam2", 600, 0, 1024));
     gui.add(dfy.stride);
+    gui.add(dfy.power);
     gui.add(dfy.noise);
     gui.add(dfy.alpha);
 }
@@ -36,8 +40,10 @@ void ofApp::update() {
     }
     */
 	if(cam.isFrameNew()) {
-
-        obs.update(cam.getPixels());
+        scld = cam.getPixels();
+        scld.mirror(false, true);
+        scld.resize(camWdth/2, camHght/2);
+        obs.update(scld);
         if(obs.getForegroundMask(fgmsk)) {
 
             /* // erode & dilate mask before countour finding
@@ -75,6 +81,8 @@ void ofApp::draw() {
     if(obs.getForegroundMask(fgmsk)) {
         fgmsk.draw(camWdth, 0);
     }
+    //bgmdl.draw(camWdth, 0);
+    //canny.draw(camWdth, 0);
     //ofPushMatrix();
     //ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
     dfy.draw();

@@ -21,7 +21,7 @@ public:
     ofxDelaunay delaunay;
     ofVboMesh mesh;
 
-    //ofParameter<float> sigma1, sigma2, tau;
+    ofParameter<float> power; //sigma1, sigma2, tau;
     ofParameter<int> stride, noise, edgeThresh, alpha; // cannyParam1, cannyParam2;
     //ofParameter<bool> doFDoG, doThresh, doThin, doCanny, neg;	
 
