@@ -29,6 +29,9 @@ public:
     ofxPanel gui;
     ofParameter<int> cannyParam1, cannyParam2; 
 
+    ofSerial pllr0;
+    bool pllr0flg = false;
+
     void setCam(ofVideoGrabber *grabber, std::string camName) {
         vector<ofVideoDevice> devices = grabber->listDevices();
         int useCam = 0;

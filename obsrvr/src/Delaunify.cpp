@@ -13,7 +13,7 @@ void Delaunify::setup(int w, int h) {
     alpha.set("alpha", 127, 0, 255);
 }
 
-void Delaunify::update(ofPixels & edgePx, ofPixels & colorPx, const std::vector<ofPolyline> & fgrs) {
+void Delaunify::update(ofPixels & edgePx, ofPixels & colorPx, const std::vector<ofPolyline> & fgrs, bool flg) {
 
     delaunay.reset();
     mesh.clear();
@@ -77,7 +77,12 @@ void Delaunify::update(ofPixels & edgePx, ofPixels & colorPx, const std::vector<
 
         // if center is in a figure set alpha to 255
         for(int i = 0; i < fgrs.size(); i++) {
-            if(fgrs[i].inside(glm::vec3(gp.x/2, gp.y/2, 0))) color.a = 255;
+            if(fgrs[i].inside(glm::vec3(gp.x/2, gp.y/2, 0))) {
+                if(flg) {
+                    color.b = 255;
+                }
+                color.a = 255;
+            }
         }
 
         mesh.addVertex(v1);

@@ -29,9 +29,19 @@ void ofApp::setup() {
     gui.add(dfy.power);
     gui.add(dfy.noise);
     gui.add(dfy.alpha);
+
+    pllr0.setup("/dev/tty.usbmodem1471", 57600);
 }
 
 void ofApp::update() {
+    if(pllr0.available() > 0) {
+        int b = 0;
+        b = pllr0.readByte();
+        ofLogNotice() << "from pillar 0 read: " << b << endl;
+        if (b == 1) pllr0flg = true;
+        if (b == 2) pllr0flg = false;
+    }
+
 	cam.update();
     /*
     if(resetBackground) {
@@ -60,7 +70,7 @@ void ofApp::update() {
             live.setFromPixels(bgmdl.getPixels());
             input.setFromColorImage(live);
             Canny(input, canny, cannyParam1 * 2, cannyParam2 * 2, 5);
-            dfy.update(canny.getPixels(), bgmdl.getPixels(), obs.getFigures());
+            dfy.update(canny.getPixels(), bgmdl.getPixels(), obs.getFigures(), pllr0flg);
         }
 
         /*
