@@ -6,7 +6,7 @@ using namespace cv;
 void Delaunify::setup(int w, int h) {
     wdth = w;
     hght = h;
-    stride.set("stride", 17, 1, 255);
+    stride.set("particles", 4000, 1, 10000);
     noise.set("noise", 100, 0, 1000);
     edgeThresh.set("edgeThresh", 30, 0, 255);
     power.set("power", 8, 0, 10);
@@ -18,32 +18,14 @@ void Delaunify::update(ofPixels & edgePx, ofPixels & colorPx, const std::vector<
     delaunay.reset();
     mesh.clear();
 
-
-    // int pcnt = stride;
-    // while (pcnt > 0) {
-    //     glm::vec3 p(ofRandom(0, wdth), ofRandom(0, hght), 0);
-    //     float b = ofMap(
-    //         colorPx.getColor((int)(p.x/2), (int)(p.y/2)).getBrightness(),
-    //         0, 255, 1, 0);
-    //     if (pow(b, power) > ofRandom(1)) {
-    //         delaunay.addPoint(p);
-    //         pcnt--;
-    //     }
-    // }
-
-    int up = stride;
-    int w = wdth / 2;
-    int h = hght / 2;
-    for (int i = 0; i < w * h; i += up) {
-        if (edgePx[i] < edgeThresh){ continue;}
-        else{
-            int coordY = floor(i/w);
-            delaunay.addPoint(glm::vec3((i-w*coordY) * 2, coordY * 2, 0));
+    int pcnt = stride;
+    while (pcnt > 0) {
+        glm::vec3 p(ofRandom(0, wdth), ofRandom(0, hght), 0);
+        int b = edgePx.getColor((int)(p.x/2), (int)(p.y/2)).getBrightness();
+        if (b > edgeThresh) {
+            delaunay.addPoint(p);
+            pcnt--;
         }
-    }
-
-    for (int i=0; i<noise; i++) {
-        delaunay.addPoint(glm::vec3(ofRandom(0, wdth), ofRandom(0, hght), 0));
     }
 
     // add figures

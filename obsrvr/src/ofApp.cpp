@@ -20,14 +20,16 @@ void ofApp::setup() {
     
     gui.setup();
     gui.add(obs.minArea);
-    gui.add(obs.maxArea);
-    gui.add(obs.threshold);
-    gui.add(obs.holes);
+    //gui.add(obs.maxArea);
+    //gui.add(obs.threshold);
+    gui.add(obs.figErode);
+    gui.add(obs.figDilate);
+    //gui.add(obs.holes);
     gui.add(cannyParam1.set("cannyParam1", 400, 0, 1024));
     gui.add(cannyParam2.set("cannyParam2", 600, 0, 1024));
     gui.add(dfy.stride);
-    gui.add(dfy.power);
-    gui.add(dfy.noise);
+    //gui.add(dfy.power);
+    //gui.add(dfy.noise);
     gui.add(dfy.alpha);
 
     pllr0.setup("/dev/tty.usbmodem1471", 57600);
@@ -54,17 +56,6 @@ void ofApp::update() {
         scld.mirror(false, true);
         scld.resize(camWdth/2, camHght/2);
         obs.update(scld);
-        if(obs.getForegroundMask(fgmsk)) {
-
-            /* // erode & dilate mask before countour finding
-            Mat msk = toCv(fgmsk);
-            Mat kd = getStructuringElement(MORPH_ELLIPSE, cv::Size(6, 6), cv::Point(-1,-1));
-            Mat ke = getStructuringElement(MORPH_RECT, cv::Size(16, 16), cv::Point(-1,-1));
-            erode(msk, msk, kd, cv::Point(-1, -1), 1, 1, 1);
-            dilate(msk, msk, ke, cv::Point(-1, -1), 2, 1, 1);
-            fgmsk.update();
-            */
-        }
 
         if(obs.getBackgroundModel(bgmdl)) {
             live.setFromPixels(bgmdl.getPixels());
