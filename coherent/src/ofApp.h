@@ -47,7 +47,7 @@ public:
     ofVboMesh mesh;
 
     ofParameter<float> sigma1, sigma2, tau;
-    ofParameter<int> stride, noise, cannyParam1, cannyParam2;
+    ofParameter<int> samples, noise, cannyParam1, cannyParam2;
     ofParameter<bool> doFDoG, doThresh, doThin, doCanny, neg;
     
 	ofxPanel gui;

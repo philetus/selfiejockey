@@ -4,23 +4,23 @@ using namespace ofxCv;
 using namespace cv;
 
 void ofApp::setup() {
- 	
- 	//camWdth = 1280;
- 	//camHght = 720;
- 	camWdth = 1920;
- 	camHght = 1080;
+    
+    //camWdth = 1280;
+    //camHght = 720;
+    camWdth = 1920;
+    camHght = 1080;
     setCam(&cam, "C920"); // try to find external webcam
     cam.setDesiredFrameRate(30);
     cam.initGrabber(camWdth, camHght);
 
     ofBackground(255);
     live.allocate(camWdth, camHght);
-	input.allocate(camWdth, camHght);
-	output.allocate(camWdth, camHght, OF_IMAGE_GRAYSCALE);
-	canny.allocate(camWdth, camHght, OF_IMAGE_GRAYSCALE);
-	
-	
-	gui.setup();
+    input.allocate(camWdth, camHght);
+    output.allocate(camWdth, camHght, OF_IMAGE_GRAYSCALE);
+    canny.allocate(camWdth, camHght, OF_IMAGE_GRAYSCALE);
+    
+    
+    gui.setup();
     //gui.add(doFDoG.set("doFDoG", true));
     /*
     gui.add(halfw.set("halfw", 4, 1, 8));
@@ -32,59 +32,69 @@ void ofApp::setup() {
     gui.add(doThresh.set("doThresh", true));
      gui.add(doThin.set("doThin", true));
     */
-	gui.add(stride.set("stride", 17, 11, 500));
-	gui.add(noise.set("noise", 100, 0, 1000));
+    gui.add(samples.set("samples", 4000, 1, 10000));
+    gui.add(noise.set("noise", 100, 0, 1000));
     gui.add(neg.set("neg", true));
-    gui.add(doCanny.set("doCanny", true));
-    gui.add(cannyParam1.set("cannyParam1", 400, 0, 1024));
-    gui.add(cannyParam2.set("cannyParam2", 600, 0, 1024));
+    gui.add(doCanny.set("doCanny", false));
+    gui.add(cannyParam1.set("cannyParam1", 300, 0, 1024));
+    gui.add(cannyParam2.set("cannyParam2", 150, 0, 1024));
 }
 
 void ofApp::update(){
     cam.update();
     if (cam.isFrameNew()) {
 
-    	delaunay.reset();
+        delaunay.reset();
         mesh.clear();
 
-    	live.setFromPixels(cam.getPixels());
-    	input.setFromColorImage(live);
+        live.setFromPixels(cam.getPixels());
+        input.setFromColorImage(live);
 
-		Canny(input, canny, cannyParam1 * 2, cannyParam2 * 2, 5);
+        Canny(input, canny, cannyParam1 * 2, cannyParam2 * 2, 5);
         int notEdgeVal = 0;
         if (neg) {
             invert(canny);
             notEdgeVal = 255;
         }
-		canny.update();
+        canny.update();
 
         ofPixels & edgePixels = canny.getPixels();
 
         float w = camWdth;
         float h = camHght;
-         
-        int up = stride;
-        for (int i=0; i<w*h; i+=up) {
-            if (edgePixels[i] == notEdgeVal){ continue;}
-            else{
-                int coordY = floor(i/w);
-                delaunay.addPoint(glm::vec3(i-w*coordY, coordY, 0));
+
+        int pcnt = samples;
+        while (pcnt > 0) {
+            glm::vec3 p(ofRandom(0, w), ofRandom(0, h), 0);
+            int b = edgePixels.getColor((int)p.x, (int)p.y).getBrightness();
+            if (b != notEdgeVal) {
+                delaunay.addPoint(p);
+                pcnt--;
             }
         }
 
-        for (int i=0; i<noise; i++) {
-            delaunay.addPoint(ofPoint(ofRandom(0, w), ofRandom(0, h)));
-        }
+        // int up = stride;
+        // for (int i=0; i<w*h; i+=up) {
+        //     if (edgePixels[i] == notEdgeVal){ continue;}
+        //     else{
+        //         int coordY = floor(i/w);
+        //         delaunay.addPoint(glm::vec3(i-w*coordY, coordY, 0));
+        //     }
+        // }
 
-		// add frame & triangulate
+        // for (int i=0; i<noise; i++) {
+        //     delaunay.addPoint(ofPoint(ofRandom(0, w), ofRandom(0, h)));
+        // }
+
+        // add frame & triangulate
         delaunay.addPoint(ofPoint(0,0));
         delaunay.addPoint(ofPoint(0,camHght));
         delaunay.addPoint(ofPoint(camWdth,camHght));
         delaunay.addPoint(ofPoint(camWdth,0));
         delaunay.triangulate();
 
-		// sample colors
-		ofPixels pixels = cam.getPixelsRef();
+        // sample colors
+        ofPixels pixels = cam.getPixelsRef();
         for (int i=0; i<delaunay.triangleMesh.getNumIndices()/3; i++) {
             int idx1 = delaunay.triangleMesh.getIndex(i*3);
             int idx2 = delaunay.triangleMesh.getIndex(i*3+1);
@@ -106,29 +116,22 @@ void ofApp::update(){
             mesh.addColor(color);
             mesh.addColor(color);
         }
-	}
+    }
 }
 
 void ofApp::draw(){
     
-	//ofTranslate(300, 0);
-	//ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-	//input.draw(0, 0);
-	//ofEnableBlendMode(OF_BLENDMODE_ADD);
-	//output.draw(0, 0);
-	
-	//input.draw(0, 0);
-	if(doCanny && neg){
-		ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-		canny.draw(0, 0);
-		ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
-        mesh.draw();
-	} else if (neg) {
+    if(doCanny && neg){
+        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+        canny.draw(0, 0);
         ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
-		ofFill();
-    	ofSetColor(255);
         mesh.draw();
-	} else if (doCanny) {
+    } else if (neg) {
+        ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
+        ofFill();
+        ofSetColor(255);
+        mesh.draw();
+    } else if (doCanny) {
         ofEnableBlendMode(OF_BLENDMODE_ALPHA);
         mesh.draw();
         ofEnableBlendMode(OF_BLENDMODE_ADD);
@@ -137,11 +140,10 @@ void ofApp::draw(){
         ofEnableBlendMode(OF_BLENDMODE_ALPHA);
         mesh.draw();
     }
-	gui.draw();
+    gui.draw();
 
-	
-/*	ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-	ofDrawBitmapStringHighlight("Coherent line drawing", 10, 20);
-	ofDrawBitmapStringHighlight("Canny edge detection", 10, 256 + 20);
-	*/
+    std::stringstream strm;
+    strm << "fps -> " << ofGetFrameRate();
+    ofDrawBitmapString(strm.str(), ofGetWidth() - 256, 32);
+
 }
