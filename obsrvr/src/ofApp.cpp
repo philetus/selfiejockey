@@ -20,19 +20,14 @@ void ofApp::setup() {
     
     gui.setup();
     gui.add(obs.minArea);
-    //gui.add(obs.maxArea);
-    //gui.add(obs.threshold);
     gui.add(obs.figErode);
     gui.add(obs.figDilate);
-    //gui.add(obs.holes);
     gui.add(cannyParam1.set("cannyParam1", 400, 0, 1024));
     gui.add(cannyParam2.set("cannyParam2", 600, 0, 1024));
     gui.add(dfy.stride);
-    //gui.add(dfy.power);
-    //gui.add(dfy.noise);
     gui.add(dfy.alpha);
 
-    pllr0.setup("/dev/tty.usbmodem1471", 57600);
+    pllr0.setup("/dev/tty.usbmodem14711", 57600);
 }
 
 void ofApp::update() {
@@ -45,12 +40,6 @@ void ofApp::update() {
     }
 
 	cam.update();
-    /*
-    if(resetBackground) {
-        background.reset();
-        resetBackground = false;
-    }
-    */
 	if(cam.isFrameNew()) {
         scld = cam.getPixels();
         scld.mirror(false, true);
@@ -61,60 +50,36 @@ void ofApp::update() {
             live.setFromPixels(bgmdl.getPixels());
             input.setFromColorImage(live);
             Canny(input, canny, cannyParam1 * 2, cannyParam2 * 2, 5);
+            canny.update();
+
             dfy.update(canny.getPixels(), bgmdl.getPixels(), obs.getFigures(), pllr0flg);
         }
-
-        /*
-        background.setLearningTime(learningTime);
-        background.setThresholdValue(thresholdValue);
-		background.update(cam, thresholded);
-		thresholded.update();
-        */
 	}
 }
 
 void ofApp::draw() {
-    /*
-    if(obs.getBackgroundModel(bgmdl)) {
-        bgmdl.draw(0, 0);
-    }
-    */
+
+    // if figure observer has foreground mask draw it
     if(obs.getForegroundMask(fgmsk)) {
+        ofSetHexColor(0xffff00);
         fgmsk.draw(camWdth, 0);
+        ofSetHexColor(0xffffff);
+
+        // draw grayscale background model & canny edges
+        ofEnableBlendMode(OF_BLENDMODE_ADD);
+        input.draw(camWdth, 0);
+        canny.draw(camWdth, 0);
+        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
     }
-    //bgmdl.draw(camWdth, 0);
-    //canny.draw(camWdth, 0);
-    //ofPushMatrix();
-    //ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
+
+    // draw delaunayfied background model
     dfy.draw();
-    //ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-    //ofPopMatrix();
 
-    /*
-    //contourFinder.draw();
-    for (int i = 0; i < contourFinder.size(); i++) {
-        //
-        //std::vector<cv::Point> contour = contourFinder.getContour(i);
-        //std::vector<cv::Point> simpleContour;
-        //approxPolyDP(contour, simpleContour, 8, true);
-        //ofPolyline p = toOf(simpleContour);
-        //
-
-        ofPolyline p = contourFinder.getPolyline(i);
-        p.simplify(0.5);
-        p = p.getSmoothed(3, 0.5);
-        p.draw();
-    }
-    */
-
+    // draw parameter sliders
     gui.draw();
 
-    //obs.draw();
-    
-    /*
-	cam.draw(0, 0);
-    if(thresholded.isAllocated()) {
-        thresholded.draw(640, 0);
-    }
-    */
+    // draw framerate
+    std::stringstream strm;
+    strm << "fps -> " << ofGetFrameRate();
+    ofDrawBitmapString(strm.str(), camWdth - 256, 32);
 }
