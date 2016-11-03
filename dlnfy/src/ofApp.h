@@ -47,5 +47,6 @@ public:
 
     ofParameter<int> particles;
     ofParameter<float> power;    
+    ofParameter<bool> flip;    
     ofxPanel gui;
 };

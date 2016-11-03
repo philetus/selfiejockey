@@ -14,6 +14,7 @@ void ofApp::setup(){
     gui.setup();
     gui.add(particles.set("particles", 1000, 0, 20000));
     gui.add(power.set("power", 2, 0.5, 8.0));
+    gui.add(flip.set("flip", false));
 }
  
 //--------------------------------------------------------------
@@ -21,6 +22,12 @@ void ofApp::update() {
     float wdth = ofGetWidth();
     float hght = ofGetHeight();
     cam.update();
+    float low = 0;
+    float high = 1;
+    if (flip) {
+        low = 1;
+        high = 0;
+    }
     if (cam.isFrameNew()) {
 
         delaunay.reset();
@@ -28,6 +35,7 @@ void ofApp::update() {
  
         // sample colors
         ofPixels pxls = cam.getPixels();
+        pxls.mirror(false, true);
 
         // generate random points weighted for brightness
         int pcnt = particles;
@@ -35,7 +43,7 @@ void ofApp::update() {
             glm::vec3 p(ofRandom(0, wdth), ofRandom(0, hght), 0);
             float b = ofMap(
                 pxls.getColor((int)p.x, (int)p.y).getBrightness(),
-                0, 255, 1, 0);
+                0, 255, high, low);
             if (pow(b, power) > ofRandom(1)) {
                 delaunay.addPoint(p);
                 pcnt--;
