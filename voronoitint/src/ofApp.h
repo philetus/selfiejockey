@@ -61,5 +61,4 @@ public:
     
     ofRectangle bounds;
     ofxSwpr::Swpr swpr;
-    bool touched;
 };

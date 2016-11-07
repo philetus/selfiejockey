@@ -20,9 +20,10 @@ void ofApp::setup() {
     output.allocate(camWdth, camHght, OF_IMAGE_GRAYSCALE);
     canny.allocate(camWdth, camHght, OF_IMAGE_GRAYSCALE);
 
+    gui.setup();
     gui.add(samples.set("samples", 4000, 1, 10000));
-    gui.add(noise.set("noise", 100, 0, 1000));
-    gui.add(neg.set("neg", true));
+    // gui.add(noise.set("noise", 100, 0, 1000));
+    // gui.add(neg.set("neg", true));
     gui.add(doCanny.set("doCanny", false));
     gui.add(cannyParam1.set("cannyParam1", 300, 0, 1024));
     gui.add(cannyParam2.set("cannyParam2", 150, 0, 1024));
@@ -36,15 +37,15 @@ void ofApp::update() {
 
         swpr.clear();
 
-        live.setFromPixels(cam.getPixels());
+        ofPixels pixels = cam.getPixels();
+
+        pixels.mirror(false, true);
+
+        live.setFromPixels(pixels);
         input.setFromColorImage(live);
 
         Canny(input, canny, cannyParam1 * 2, cannyParam2 * 2, 5);
         int notEdgeVal = 0;
-        if (neg) {
-            invert(canny);
-            notEdgeVal = 255;
-        }
         canny.update();
 
         ofPixels & edgePixels = canny.getPixels();
@@ -66,7 +67,7 @@ void ofApp::update() {
 		swpr.diagram();
 
         // set cells to tinted colors based on sampled brightness
-        ofPixels pixels = cam.getPixels();
+        
         for(std::size_t i = 0; i < swpr.clls.size(); i++) {
             ofColor c = ofColor(tntclr);
             glm::vec3 src = swpr.srcs[swpr.clls[i].srcdx];
@@ -80,16 +81,16 @@ void ofApp::update() {
 
 void ofApp::draw() {
 
-    // the bounds of all the points
-    //ofSetColor(90);
-    //ofNoFill();
-    //ofDrawRectangle(bounds);
-    
     //ofFill();
     //ofSetColor(255);
 
     // draw the voronoi mesh
     swpr.vrn.draw(OF_MESH_FILL);
+    if (doCanny) {
+        ofEnableBlendMode(OF_BLENDMODE_ADD);
+        canny.draw(0, 0);
+        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+    }
 
     gui.draw();
 
