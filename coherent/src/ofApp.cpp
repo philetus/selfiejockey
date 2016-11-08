@@ -47,7 +47,9 @@ void ofApp::update(){
         delaunay.reset();
         mesh.clear();
 
-        live.setFromPixels(cam.getPixels());
+        ofPixels pixels = cam.getPixels();
+        pixels.mirror(false,true);
+        live.setFromPixels(pixels);
         input.setFromColorImage(live);
 
         Canny(input, canny, cannyParam1 * 2, cannyParam2 * 2, 5);
@@ -94,7 +96,6 @@ void ofApp::update(){
         delaunay.triangulate();
 
         // sample colors
-        ofPixels pixels = cam.getPixelsRef();
         for (int i=0; i<delaunay.triangleMesh.getNumIndices()/3; i++) {
             int idx1 = delaunay.triangleMesh.getIndex(i*3);
             int idx2 = delaunay.triangleMesh.getIndex(i*3+1);
