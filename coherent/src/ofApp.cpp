@@ -5,35 +5,17 @@ using namespace cv;
 
 void ofApp::setup() {
     
-    //camWdth = 1280;
-    //camHght = 720;
     camWdth = 1920;
     camHght = 1080;
     setCam(&cam, "C920"); // try to find external webcam
-    cam.setDesiredFrameRate(30);
     cam.initGrabber(camWdth, camHght);
 
     ofBackground(255);
-    live.allocate(camWdth, camHght);
-    input.allocate(camWdth, camHght);
-    output.allocate(camWdth, camHght, OF_IMAGE_GRAYSCALE);
+    input.allocate(camWdth, camHght, OF_IMAGE_GRAYSCALE);
     canny.allocate(camWdth, camHght, OF_IMAGE_GRAYSCALE);
     
-    
     gui.setup();
-    //gui.add(doFDoG.set("doFDoG", true));
-    /*
-    gui.add(halfw.set("halfw", 4, 1, 8));
-    gui.add(smoothPasses.set("smoothPasses", 2, 1, 4));
-    gui.add(sigma1.set("sigma1", 0.68, 0.01, 2.0));
-    gui.add(sigma2.set("sigma2", 6.0, 0.01, 10.0));
-    gui.add(tau.set("tau", 0.974, 0.8, 1.0));
-    gui.add(black.set("black", -8, -255, 255));
-    gui.add(doThresh.set("doThresh", true));
-     gui.add(doThin.set("doThin", true));
-    */
     gui.add(samples.set("samples", 4000, 1, 10000));
-    gui.add(noise.set("noise", 100, 0, 1000));
     gui.add(neg.set("neg", true));
     gui.add(doCanny.set("doCanny", false));
     gui.add(cannyParam1.set("cannyParam1", 300, 0, 1024));
@@ -47,11 +29,12 @@ void ofApp::update(){
         delaunay.reset();
         mesh.clear();
 
+        // get image from camera and mirror it
         ofPixels pixels = cam.getPixels();
         pixels.mirror(false,true);
-        live.setFromPixels(pixels);
-        input.setFromColorImage(live);
 
+        // convert image to grayscale and run canny edge filter
+        ofxCv::copyGray(pixels, input);
         Canny(input, canny, cannyParam1 * 2, cannyParam2 * 2, 5);
         int notEdgeVal = 0;
         if (neg) {
@@ -59,34 +42,18 @@ void ofApp::update(){
             notEdgeVal = 255;
         }
         canny.update();
+        ofPixels edgePixels = canny.getPixels();
 
-        ofPixels & edgePixels = canny.getPixels();
-
-        float w = camWdth;
-        float h = camHght;
-
+        // monte carlo sample for points on canny edges
         int pcnt = samples;
         while (pcnt > 0) {
-            glm::vec3 p(ofRandom(0, w), ofRandom(0, h), 0);
+            glm::vec3 p(ofRandom(0, camWdth), ofRandom(0, camHght), 0);
             int b = edgePixels.getColor((int)p.x, (int)p.y).getBrightness();
             if (b != notEdgeVal) {
                 delaunay.addPoint(p);
                 pcnt--;
             }
         }
-
-        // int up = stride;
-        // for (int i=0; i<w*h; i+=up) {
-        //     if (edgePixels[i] == notEdgeVal){ continue;}
-        //     else{
-        //         int coordY = floor(i/w);
-        //         delaunay.addPoint(glm::vec3(i-w*coordY, coordY, 0));
-        //     }
-        // }
-
-        // for (int i=0; i<noise; i++) {
-        //     delaunay.addPoint(ofPoint(ofRandom(0, w), ofRandom(0, h)));
-        // }
 
         // add frame & triangulate
         delaunay.addPoint(ofPoint(0,0));
@@ -95,7 +62,7 @@ void ofApp::update(){
         delaunay.addPoint(ofPoint(camWdth,0));
         delaunay.triangulate();
 
-        // sample colors
+        // sample colors from unfiltered image pixels
         for (int i=0; i<delaunay.triangleMesh.getNumIndices()/3; i++) {
             int idx1 = delaunay.triangleMesh.getIndex(i*3);
             int idx2 = delaunay.triangleMesh.getIndex(i*3+1);

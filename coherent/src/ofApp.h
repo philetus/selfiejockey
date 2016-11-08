@@ -39,16 +39,13 @@ public:
 
     int camWdth, camHght;
     ofVideoGrabber cam;
-	ofxCvColorImage live;
-	ofxCvGrayscaleImage input;
-	ofImage output, canny;
+	ofImage input, canny;
 
     ofxDelaunay delaunay;
     ofVboMesh mesh;
 
-    ofParameter<float> sigma1, sigma2, tau;
-    ofParameter<int> samples, noise, cannyParam1, cannyParam2;
-    ofParameter<bool> doFDoG, doThresh, doThin, doCanny, neg;
+    ofParameter<int> samples, cannyParam1, cannyParam2;
+    ofParameter<bool> doCanny, neg;
     
 	ofxPanel gui;
 };
