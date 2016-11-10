@@ -5,6 +5,9 @@
 #include "ofxGui.h"
 #include "ofxFgr.h"
 #include "Delaunify.h"
+#include "Pllr.h"
+#include "Fltr.h"
+#include "CannyDlnyFltr.h"
 
 class ofApp : public ofBaseApp {
 public:
@@ -14,23 +17,24 @@ public:
 	
 	ofVideoGrabber cam;
 	int camWdth, camHght;
+    ofRectangle src, trgt;
 
 	ofxFgr::Obsrvr obs;
 	ofImage fgmsk, bgmdl;
+    ofPixels scld;
     
     ofxCv::ContourFinder contourFinder;
 
     Delaunify dfy;
-    ofxCvColorImage live;
-    ofxCvGrayscaleImage input;
-    ofImage canny;
-    ofPixels scld;
     
     ofxPanel gui;
     ofParameter<int> cannyParam1, cannyParam2; 
 
-    ofSerial pllr0;
-    bool pllr0flg = false;
+    ofPolyline domn0, domn1;
+    CannyDlnyFltr fltr0, fltr1;
+    string prt0, prt1;
+    Pllr pllr0, pllr1;
+    std::vector<Pllr> pllrs;
 
     void setCam(ofVideoGrabber *grabber, std::string camName) {
         vector<ofVideoDevice> devices = grabber->listDevices();

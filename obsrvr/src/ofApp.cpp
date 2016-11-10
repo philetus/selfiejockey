@@ -12,47 +12,61 @@ void ofApp::setup() {
     camHght = cam.getHeight();
     ofLogNotice() << "cam width: " << camWdth << " cam height: " << camHght << endl;
 
-    dfy.setup(camWdth, camHght);
+    src = ofRectangle(0, 0, camWdth/2, camHght/2);
+    trgt = ofRectangle(0, 0, 1920, 1080);
+
+    dfy.setup(src, trgt);
+
     ofBackground(255);
-    live.allocate(camWdth / 2, camHght / 2);
-    input.allocate(camWdth / 2, camHght / 2);
-    canny.allocate(camWdth / 2, camHght / 2, OF_IMAGE_GRAYSCALE);
     
     gui.setup();
     gui.add(obs.minArea);
     gui.add(obs.figErode);
     gui.add(obs.figDilate);
-    gui.add(cannyParam1.set("cannyParam1", 400, 0, 1024));
-    gui.add(cannyParam2.set("cannyParam2", 600, 0, 1024));
-    gui.add(dfy.stride);
+    gui.add(dfy.cannyParam1);
+    gui.add(dfy.cannyParam2);
+    gui.add(dfy.samples);
     gui.add(dfy.alpha);
 
-    pllr0.setup("/dev/tty.usbmodem14711", 57600);
+    prt0 = "/dev/tty.usbmodem14711";
+    domn0.addVertex(0, 0, 0);
+    domn0.addVertex(356, 0, 0);
+    domn0.addVertex(324, 360, 0);
+    domn0.addVertex(0, 360, 0);
+    domn0.close();
+    fltr0.setup(src, trgt);
+    pllr0.setup(0, prt0, 57600, fltr0, domn0);   
+    pllrs.push_back(pllr0);
+
+    prt1 = "/dev/tty.usbmodem14712";
+    domn1.addVertex(356, 0, 0);
+    domn1.addVertex(640, 0, 0);
+    domn1.addVertex(640, 360, 0);
+    domn1.addVertex(324, 360, 0);
+    domn1.close();
+    fltr1.setup(src, trgt);
+    pllr1.setup(1, prt1, 57600, fltr1, domn1);   
+    pllrs.push_back(pllr1);
 }
 
 void ofApp::update() {
-    if(pllr0.available() > 0) {
-        int b = 0;
-        b = pllr0.readByte();
-        ofLogNotice() << "from pillar 0 read: " << b << endl;
-        if (b == 1) pllr0flg = true;
-        if (b == 2) pllr0flg = false;
-    }
 
 	cam.update();
 	if(cam.isFrameNew()) {
         scld = cam.getPixels();
         scld.mirror(false, true);
-        scld.resize(camWdth/2, camHght/2);
+        scld.resize(src.width, src.height);
         obs.update(scld);
 
         if(obs.getBackgroundModel(bgmdl)) {
-            live.setFromPixels(bgmdl.getPixels());
-            input.setFromColorImage(live);
-            Canny(input, canny, cannyParam1 * 2, cannyParam2 * 2, 5);
-            canny.update();
-
-            dfy.update(canny.getPixels(), bgmdl.getPixels(), obs.getFigures(), pllr0flg);
+            const std::vector<ofPolyline> & fgrs = obs.getFigures();
+            ofPixels bgpxls = bgmdl.getPixels();
+            std::vector<ofPolyline> ghsts;
+            for (std::size_t i = 0; i < pllrs.size(); i++) {
+                std::vector<ofPolyline> gs = pllrs[i].update(bgpxls, fgrs);
+                ghsts.insert(ghsts.end(), gs.begin(), gs.end());
+            }
+            dfy.update(bgmdl.getPixels(), ghsts);
         }
 	}
 }
@@ -67,8 +81,8 @@ void ofApp::draw() {
 
         // draw grayscale background model & canny edges
         ofEnableBlendMode(OF_BLENDMODE_ADD);
-        input.draw(camWdth, 0);
-        canny.draw(camWdth, 0);
+        dfy.inpt.draw(camWdth, 0);
+        dfy.cnny.draw(camWdth, 0);
         ofEnableBlendMode(OF_BLENDMODE_ALPHA);
     }
 

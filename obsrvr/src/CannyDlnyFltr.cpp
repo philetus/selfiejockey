@@ -1,9 +1,9 @@
-#include "Delaunify.h"
+#include "CannyDlnyFltr.h"
 
 using namespace ofxCv;
 using namespace cv;
 
-void Delaunify::setup(ofRectangle source, ofRectangle target) {
+void CannyDlnyFltr::setup(ofRectangle source, ofRectangle target) {
     src = source;
     trgt = target; 
     xdlt = trgt.getMinX() - src.getMinX();
@@ -14,16 +14,34 @@ void Delaunify::setup(ofRectangle source, ofRectangle target) {
     inpt.allocate(src.getWidth(), src.getHeight(), OF_IMAGE_GRAYSCALE);
     cnny.allocate(src.getWidth(), src.getHeight(), OF_IMAGE_GRAYSCALE);
  
-    samples.set("samples", 4000, 1, 10000);
+    samples.set("samples", 500, 1, 10000);
     neg.set("neg", true);
+    doCanny.set("doCanny", false);
     cannyParam1.set("cannyParam1", 300, 0, 1024);
     cannyParam2.set("cannyParam2", 150, 0, 1024);
-    alpha.set("alpha", 127, 0, 255);
+
+    empty = true;
 }
 
-void Delaunify::update(ofPixels & pxls, const std::vector<ofPolyline> & fgrs) {
+void CannyDlnyFltr::update(ofPixels pxls, const std::vector<ofPolyline> & fgrs) {
     dlny.reset();
     msh.clear();
+
+    // if there are no figures set empty flag and return
+    if (fgrs.size() < 1) {
+        empty = true;
+        return;
+    }
+    empty = false;
+
+    // add figures to delaunay mesh
+    ofRectangle roi(fgrs[0].getBoundingBox()); // get region containing all figures
+    for (std::size_t i = 0; i < fgrs.size(); i++) {
+        for (std::size_t j = 0; j < fgrs[i].size(); j++) {
+            dlny.addPoint(glm::vec3(fgrs[i][j].x * 2, fgrs[i][j].y * 2, 0));
+            roi.growToInclude(fgrs[0].getBoundingBox());
+        }
+    }
 
     // convert image to grayscale and run canny edge filter
     ofxCv::copyGray(pxls, inpt);
@@ -39,30 +57,27 @@ void Delaunify::update(ofPixels & pxls, const std::vector<ofPolyline> & fgrs) {
     // monte carlo sample for points on canny edges
     int pcnt = samples;
     while (pcnt > 0) {
-        glm::vec3 p = randInRect(src);
-        int b = edgpxls[((int)p.y * src.width) + (int)p.x];
+
+        // get random point in region of interest
+        glm::vec3 p = randInRect(roi); 
+
+        // test if point is on an edge
+        int b = edgpxls.getColor((int)p.x, (int)p.y).getBrightness();
         if (b != notEdgeVal) {
-            dlny.addPoint(p);
-            pcnt--;
+
+            // if point is on edge test if it is also in a figure
+            if (infgrs(fgrs, p)) {
+                dlny.addPoint(p);
+                pcnt--;
+            }
         }
     }
 
-    // add figure points to delaunay diagram
-    for(int i = 0; i < fgrs.size(); i++) {
-        for(int j = 0; j < fgrs[i].size(); j++) {
-            dlny.addPoint(glm::vec3(fgrs[i][j].x, fgrs[i][j].y, 0));
-        }
-    }
-
-    // add frame & triangulate
-    dlny.addPoint(src.getBottomLeft());
-    dlny.addPoint(src.getBottomRight());
-    dlny.addPoint(src.getTopRight());
-    dlny.addPoint(src.getTopLeft());
+    // triangulate
     dlny.triangulate();
 
-    // sample colors
-    for (std::size_t i = 0; i < dlny.triangleMesh.getNumIndices()/3; i++) {
+    // sample colors from unfiltered image pixels
+    for (int i=0; i < dlny.triangleMesh.getNumIndices()/3; i++) {
         int idx0 = dlny.triangleMesh.getIndex(i*3);
         int idx1 = dlny.triangleMesh.getIndex(i*3+1);
         int idx2 = dlny.triangleMesh.getIndex(i*3+2);
@@ -73,13 +88,7 @@ void Delaunify::update(ofPixels & pxls, const std::vector<ofPolyline> & fgrs) {
          
         glm::vec3 gp = (v0+v1+v2)/3.0;
          
-        ofColor clr = pxls.getColor((int)(gp.x), (int)(gp.y));
-        clr.a = alpha;
-
-        // if center is in a figure set alpha to 255
-        if (infgrs(fgrs, gp)) {
-            clr.a = 255;
-        }
+        ofColor clr = pxls.getColor((int)gp.x, (int)gp.y);
 
         // adjust vertices to target scale
         glm::vec3 nv0((v0.x * xscl) + xdlt, (v0.y * yscl) + ydlt, 0);
@@ -96,6 +105,14 @@ void Delaunify::update(ofPixels & pxls, const std::vector<ofPolyline> & fgrs) {
     }
 }
 
-void Delaunify::draw() {
-    msh.draw();    
+void CannyDlnyFltr::draw() {
+    if (empty) return; // check that we generated a mesh already
+
+    if (neg) {
+        ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
+        msh.draw();
+        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+    } else {
+        msh.draw();
+    }
 }
