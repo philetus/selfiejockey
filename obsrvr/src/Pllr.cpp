@@ -1,9 +1,9 @@
 #include "Pllr.h"
 
-void Pllr::setup(int number, string prt, int bdrt, Fltr &filter, ofPolyline domain) {
+void Pllr::setup(int number, ofSerial serial, Fltr &filter, ofPolyline domain) {
 
     // init serial
-    srl.setup(prt, bdrt);
+    srl = serial;
 
     nmbr = number;
     fltr = &filter;
@@ -15,10 +15,15 @@ const std::vector<ofPolyline> & Pllr::update(const ofPixels & pxls, const std::v
     // check figure centers against domain
     fgrs.clear();
     bool g = false;
-    for (std::size_t i = 0; i < fgrs.size(); i++) {
+    for (std::size_t i = 0; i < figures.size(); i++) {
+
+        // ofLogNotice() << "pillar " << nmbr << " checking figure at " << figures[i].getCentroid2D();
+
         if (dmn.inside(figures[i].getCentroid2D())) {
             fgrs.push_back(figures[i]);
             g = true;
+
+            // ofLogNotice() << "pillar " << nmbr << " found figure!";
         }
     }
 
@@ -35,19 +40,22 @@ const std::vector<ofPolyline> & Pllr::update(const ofPixels & pxls, const std::v
             ofLogNotice() << "pillar " << nmbr << " *not* ghosted";
         }
     }
+    swtchflg = true;
 
-    // check serial connection for input
-    if(srl.isInitialized() && srl.available() > 0) {
-        int b = 0;
-        b = srl.readByte();
+    // // check serial connection for input
+    // if(srl.isInitialized() && srl.available() > 0) {
 
-        ofLogNotice() << "pillar " << nmbr << " read: " << b;
+    //     ofLogNotice() << "pillar " << nmbr << " has " << srl.available() << " bytes available";
+    //     int b = 0;
+    //     b = srl.readByte();
 
-        if (b == 97) hallflg = false; // 97 -> 'a'
-        if (b == 98) hallflg = true; // 98 -> 'b'
-        if (b == 99) swtchflg = false; // 99 -> 'c'
-        if (b == 100) swtchflg = true; // 100 -> 'd'
-    }
+    //     ofLogNotice() << "pillar " << nmbr << " read: " << b;
+
+    //     if (b == 97) hallflg = false; // 97 -> 'a'
+    //     if (b == 98) hallflg = true; // 98 -> 'b'
+    //     if (b == 99) swtchflg = false; // 99 -> 'c'
+    //     if (b == 100) swtchflg = true; // 100 -> 'd'
+    // }
 
     // when switch is on update filter
     if (swtchflg) {

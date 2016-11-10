@@ -28,24 +28,24 @@ void ofApp::setup() {
     gui.add(dfy.samples);
     gui.add(dfy.alpha);
 
-    prt0 = "/dev/tty.usbmodem14711";
+    srl0.setup("/dev/tty.usbmodem14711", 57600);
     domn0.addVertex(0, 0, 0);
     domn0.addVertex(356, 0, 0);
     domn0.addVertex(324, 360, 0);
     domn0.addVertex(0, 360, 0);
     domn0.close();
     fltr0.setup(src, trgt);
-    pllr0.setup(0, prt0, 57600, fltr0, domn0);   
+    pllr0.setup(0, srl0, fltr0, domn0);   
     pllrs.push_back(pllr0);
 
-    prt1 = "/dev/tty.usbmodem14712";
+    srl1.setup("/dev/tty.usbmodem14721", 57600);
     domn1.addVertex(356, 0, 0);
     domn1.addVertex(640, 0, 0);
     domn1.addVertex(640, 360, 0);
     domn1.addVertex(324, 360, 0);
     domn1.close();
     fltr1.setup(src, trgt);
-    pllr1.setup(1, prt1, 57600, fltr1, domn1);   
+    pllr1.setup(1, srl1, fltr1, domn1);   
     pllrs.push_back(pllr1);
 }
 
@@ -59,14 +59,21 @@ void ofApp::update() {
         obs.update(scld);
 
         if(obs.getBackgroundModel(bgmdl)) {
+            bgmdl.update();
             const std::vector<ofPolyline> & fgrs = obs.getFigures();
+
+            //ofLogNotice() << "found " << fgrs.size() << " figures";
+
             ofPixels bgpxls = bgmdl.getPixels();
             std::vector<ofPolyline> ghsts;
             for (std::size_t i = 0; i < pllrs.size(); i++) {
-                std::vector<ofPolyline> gs = pllrs[i].update(bgpxls, fgrs);
+                std::vector<ofPolyline> gs = pllrs[i].update(scld, fgrs);
                 ghsts.insert(ghsts.end(), gs.begin(), gs.end());
             }
-            dfy.update(bgmdl.getPixels(), ghsts);
+
+            //ofLogNotice() << "see " << ghsts.size() << " ghosts";
+
+            dfy.update(bgpxls, ghsts);
         }
 	}
 }
@@ -88,6 +95,11 @@ void ofApp::draw() {
 
     // draw delaunayfied background model
     dfy.draw();
+
+    // draw pillar filters
+    for (std::size_t i = 0; i < pllrs.size(); i++) {
+        pllrs[i].fltr->draw();
+    }
 
     // draw parameter sliders
     gui.draw();

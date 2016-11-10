@@ -6,15 +6,17 @@ using namespace cv;
 void CannyDlnyFltr::setup(ofRectangle source, ofRectangle target) {
     src = source;
     trgt = target; 
-    xdlt = trgt.getMinX() - src.getMinX();
-    ydlt = trgt.getMinY() - src.getMinY();
-    xscl = trgt.getWidth() / src.getWidth();
-    yscl = trgt.getHeight() / src.getHeight();
+    xdlt = trgt.x - src.x;
+    ydlt = trgt.y - src.y;
+    xscl = trgt.width / (float)src.width;
+    yscl = trgt.height / (float)src.height;
 
-    inpt.allocate(src.getWidth(), src.getHeight(), OF_IMAGE_GRAYSCALE);
-    cnny.allocate(src.getWidth(), src.getHeight(), OF_IMAGE_GRAYSCALE);
+    ofLogNotice() << "xdlt " << xdlt << " ydlt " << ydlt << " xscl " << xscl << " yscl " << yscl;
+
+    inpt.allocate(src.width, src.height, OF_IMAGE_GRAYSCALE);
+    cnny.allocate(src.width, src.height, OF_IMAGE_GRAYSCALE);
  
-    samples.set("samples", 500, 1, 10000);
+    samples.set("samples", 1000, 1, 10000);
     neg.set("neg", true);
     doCanny.set("doCanny", false);
     cannyParam1.set("cannyParam1", 300, 0, 1024);
@@ -38,10 +40,12 @@ void CannyDlnyFltr::update(ofPixels pxls, const std::vector<ofPolyline> & fgrs) 
     ofRectangle roi(fgrs[0].getBoundingBox()); // get region containing all figures
     for (std::size_t i = 0; i < fgrs.size(); i++) {
         for (std::size_t j = 0; j < fgrs[i].size(); j++) {
-            dlny.addPoint(glm::vec3(fgrs[i][j].x * 2, fgrs[i][j].y * 2, 0));
+            dlny.addPoint(glm::vec3(fgrs[i][j].x, fgrs[i][j].y, 0));
             roi.growToInclude(fgrs[0].getBoundingBox());
         }
     }
+
+    // ofLogNotice() << "rendering canny delaunay filter for roi: " << roi;
 
     // convert image to grayscale and run canny edge filter
     ofxCv::copyGray(pxls, inpt);
@@ -62,7 +66,7 @@ void CannyDlnyFltr::update(ofPixels pxls, const std::vector<ofPolyline> & fgrs) 
         glm::vec3 p = randInRect(roi); 
 
         // test if point is on an edge
-        int b = edgpxls.getColor((int)p.x, (int)p.y).getBrightness();
+        int b = edgpxls[((int)p.y * src.width) + (int)p.x];
         if (b != notEdgeVal) {
 
             // if point is on edge test if it is also in a figure
@@ -107,6 +111,8 @@ void CannyDlnyFltr::update(ofPixels pxls, const std::vector<ofPolyline> & fgrs) 
 
 void CannyDlnyFltr::draw() {
     if (empty) return; // check that we generated a mesh already
+
+    // ofLogNotice() << "drawing canny delaunay mesh";
 
     if (neg) {
         ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);

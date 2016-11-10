@@ -12,7 +12,7 @@ public:
     Pllr() {}
     ~Pllr() {}
 
-    void setup(int number, string prt, int bdrt, Fltr &filter, ofPolyline domain);
+    void setup(int number, ofSerial serial, Fltr &filter, ofPolyline domain);
     const std::vector<ofPolyline> & update(const ofPixels & pxls, const std::vector<ofPolyline> & figures);
     void draw();
     bool switched();

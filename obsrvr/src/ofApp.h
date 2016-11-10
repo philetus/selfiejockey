@@ -32,7 +32,7 @@ public:
 
     ofPolyline domn0, domn1;
     CannyDlnyFltr fltr0, fltr1;
-    string prt0, prt1;
+    ofSerial srl0, srl1;
     Pllr pllr0, pllr1;
     std::vector<Pllr> pllrs;
 
