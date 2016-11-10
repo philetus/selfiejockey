@@ -8,10 +8,10 @@
 
 class ofApp : public ofBaseApp{
 public:
-	void setup();
-	void update();
-	void draw();
-	
+    void setup();
+    void update();
+    void draw();
+    
     void setCam(ofVideoGrabber *grabber, std::string camName) {
 
         //get back a list of devices.
@@ -19,8 +19,8 @@ public:
 
         int useCam = 0;
 
-        for(int i = 0; i < devices.size(); i++){
-            if(devices[i].bAvailable){
+        for (int i = 0; i < devices.size(); i++) {
+            if (devices[i].bAvailable) {
 
                 //log the device
                 ofLogNotice() << devices[i].id << ": " << devices[i].deviceName << " - available ";
@@ -29,7 +29,7 @@ public:
                     ofLogNotice() << "found " << camName << "!\n";
                     useCam = i;
                 }
-            }else{
+            } else {
                 //log the device and note it as unavailable
                 ofLogNotice() << devices[i].id << ": " << devices[i].deviceName << " - unavailable ";
             }
@@ -39,7 +39,7 @@ public:
 
     int camWdth, camHght;
     ofVideoGrabber cam;
-	ofImage input, canny;
+    ofImage input, canny;
 
     ofxDelaunay delaunay;
     ofVboMesh mesh;
@@ -47,5 +47,5 @@ public:
     ofParameter<int> samples, cannyParam1, cannyParam2;
     ofParameter<bool> doCanny, neg;
     
-	ofxPanel gui;
+    ofxPanel gui;
 };

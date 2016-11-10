@@ -48,7 +48,7 @@ void ofApp::update(){
         int pcnt = samples;
         while (pcnt > 0) {
             glm::vec3 p(ofRandom(0, camWdth), ofRandom(0, camHght), 0);
-            int b = edgePixels.getColor((int)p.x, (int)p.y).getBrightness();
+            int b = edgePixels[((int)p.y * camWdth) + (int)p.x];
             if (b != notEdgeVal) {
                 delaunay.addPoint(p);
                 pcnt--;
@@ -113,5 +113,4 @@ void ofApp::draw(){
     std::stringstream strm;
     strm << "fps -> " << ofGetFrameRate();
     ofDrawBitmapString(strm.str(), ofGetWidth() - 256, 32);
-
 }
