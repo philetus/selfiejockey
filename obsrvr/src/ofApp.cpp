@@ -28,24 +28,26 @@ void ofApp::setup() {
     gui.add(dfy.samples);
     gui.add(dfy.alpha);
 
-    srl0.setup("/dev/tty.usbmodem14711", 57600);
+    srl0.setup("/dev/tty.usbmodem1471", 9600);
+    srls.push_back(&srl0);
     domn0.addVertex(0, 0, 0);
     domn0.addVertex(356, 0, 0);
     domn0.addVertex(324, 360, 0);
     domn0.addVertex(0, 360, 0);
     domn0.close();
     fltr0.setup(src, trgt);
-    pllr0.setup(0, srl0, fltr0, domn0);   
+    pllr0.setup(0, fltr0, domn0);   
     pllrs.push_back(pllr0);
 
-    srl1.setup("/dev/tty.usbmodem14721", 57600);
+    srl1.setup("/dev/tty.usbmodem14721", 9600);
+    srls.push_back(&srl1);
     domn1.addVertex(356, 0, 0);
     domn1.addVertex(640, 0, 0);
     domn1.addVertex(640, 360, 0);
     domn1.addVertex(324, 360, 0);
     domn1.close();
     fltr1.setup(src, trgt);
-    pllr1.setup(1, srl1, fltr1, domn1);   
+    pllr1.setup(1, fltr1, domn1);   
     pllrs.push_back(pllr1);
 }
 
@@ -67,6 +69,12 @@ void ofApp::update() {
             ofPixels bgpxls = bgmdl.getPixels();
             std::vector<ofPolyline> ghsts;
             for (std::size_t i = 0; i < pllrs.size(); i++) {
+
+                // check serial
+                if (srls[i]->isInitialized() && srls[i]->available() > 0) {
+                    pllrs[i].handleSerial(srls[i]->readByte());
+                }
+
                 std::vector<ofPolyline> gs = pllrs[i].update(scld, fgrs);
                 ghsts.insert(ghsts.end(), gs.begin(), gs.end());
             }
@@ -98,7 +106,7 @@ void ofApp::draw() {
 
     // draw pillar filters
     for (std::size_t i = 0; i < pllrs.size(); i++) {
-        pllrs[i].fltr->draw();
+        pllrs[i].draw();
     }
 
     // draw parameter sliders

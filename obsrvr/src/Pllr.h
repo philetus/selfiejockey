@@ -12,12 +12,12 @@ public:
     Pllr() {}
     ~Pllr() {}
 
-    void setup(int number, ofSerial serial, Fltr &filter, ofPolyline domain);
+    void setup(int number, Fltr &filter, ofPolyline domain);
     const std::vector<ofPolyline> & update(const ofPixels & pxls, const std::vector<ofPolyline> & figures);
     void draw();
     bool switched();
+    void handleSerial(int b);
 
-    ofSerial srl;
     int nmbr;
     ofRectangle src, trgt;
     ofPolyline dmn; // domain of this pillar in source frame
