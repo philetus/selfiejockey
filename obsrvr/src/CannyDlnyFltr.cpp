@@ -91,21 +91,24 @@ void CannyDlnyFltr::update(ofPixels pxls, const std::vector<ofPolyline> & fgrs) 
         glm::vec3 v2 = dlny.triangleMesh.getVertex(idx2);
          
         glm::vec3 gp = (v0+v1+v2)/3.0;
-         
-        ofColor clr = pxls.getColor((int)gp.x, (int)gp.y);
+        
+        // dont add triangles outside of figure
+        if (infgrs(fgrs, gp)) {
+            ofColor clr = pxls.getColor((int)gp.x, (int)gp.y);
 
-        // adjust vertices to target scale
-        glm::vec3 nv0((v0.x * xscl) + xdlt, (v0.y * yscl) + ydlt, 0);
-        glm::vec3 nv1((v1.x * xscl) + xdlt, (v1.y * yscl) + ydlt, 0);
-        glm::vec3 nv2((v2.x * xscl) + xdlt, (v2.y * yscl) + ydlt, 0);
-         
-        msh.addVertex(nv0);
-        msh.addVertex(nv1);
-        msh.addVertex(nv2);
-         
-        msh.addColor(clr);
-        msh.addColor(clr);
-        msh.addColor(clr);
+            // adjust vertices to target scale
+            glm::vec3 nv0((v0.x * xscl) + xdlt, (v0.y * yscl) + ydlt, 0);
+            glm::vec3 nv1((v1.x * xscl) + xdlt, (v1.y * yscl) + ydlt, 0);
+            glm::vec3 nv2((v2.x * xscl) + xdlt, (v2.y * yscl) + ydlt, 0);
+             
+            msh.addVertex(nv0);
+            msh.addVertex(nv1);
+            msh.addVertex(nv2);
+             
+            msh.addColor(clr);
+            msh.addColor(clr);
+            msh.addColor(clr);
+        }
     }
 }
 

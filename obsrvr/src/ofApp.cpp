@@ -89,17 +89,17 @@ void ofApp::update() {
 void ofApp::draw() {
 
     // if figure observer has foreground mask draw it
-    if(obs.getForegroundMask(fgmsk)) {
-        ofSetHexColor(0xffff00);
-        fgmsk.draw(camWdth, 0);
-        ofSetHexColor(0xffffff);
+    // if(obs.getForegroundMask(fgmsk)) {
+    //     ofSetHexColor(0xffff00);
+    //     fgmsk.draw(camWdth, 0);
+    //     ofSetHexColor(0xffffff);
 
-        // draw grayscale background model & canny edges
-        ofEnableBlendMode(OF_BLENDMODE_ADD);
-        dfy.inpt.draw(camWdth, 0);
-        dfy.cnny.draw(camWdth, 0);
-        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-    }
+    //     // draw grayscale background model & canny edges
+    //     ofEnableBlendMode(OF_BLENDMODE_ADD);
+    //     dfy.inpt.draw(camWdth, 0);
+    //     dfy.cnny.draw(camWdth, 0);
+    //     ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+    // }
 
     // draw delaunayfied background model
     dfy.draw();
