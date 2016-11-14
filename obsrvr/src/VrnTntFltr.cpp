@@ -22,7 +22,7 @@ void VrnTntFltr::setup(ofRectangle source, ofRectangle target) {
     cannyParam1.set("cannyParam1", 300, 0, 1024);
     cannyParam2.set("cannyParam2", 150, 0, 1024);
 
-    tntclr.setHex(0x00ffaa); // resin tint color
+    tntclr.setHex(0x00ffaa, 0xaa); // resin tint color
     empty = true;
 }
 
