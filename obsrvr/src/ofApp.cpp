@@ -28,7 +28,7 @@ void ofApp::setup() {
     gui.add(dfy.samples);
     gui.add(dfy.alpha);
 
-    srl0.setup("/dev/tty.usbmodem1471", 9600);
+    srl0.setup("/dev/tty.usbmodem14711", 9600);
     srls.push_back(&srl0);
     domn0.addVertex(0, 0, 0);
     domn0.addVertex(356, 0, 0);

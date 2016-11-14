@@ -8,6 +8,7 @@
 #include "Pllr.h"
 #include "Fltr.h"
 #include "CannyDlnyFltr.h"
+#include "VrnTntFltr.h"
 
 class ofApp : public ofBaseApp {
 public:
@@ -31,7 +32,8 @@ public:
     ofParameter<int> cannyParam1, cannyParam2; 
 
     ofPolyline domn0, domn1;
-    CannyDlnyFltr fltr0, fltr1;
+    CannyDlnyFltr fltr0;
+    VrnTntFltr fltr1;
     ofSerial srl0, srl1;
     std::vector<ofSerial *> srls;
     Pllr pllr0, pllr1;

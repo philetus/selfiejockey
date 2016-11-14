@@ -3,3 +3,4 @@ ofxCv
 ofxOpenCv
 ofxGui
 ofxDelaunay
+ofxSwpr
