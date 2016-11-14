@@ -62,4 +62,6 @@ public:
     ofRectangle bounds;
     ofxSwpr::Swpr swpr;
     std::vector<ofPolyline> bmbs;
+    std::vector<ofColor> clrs;
+    std::vector<float> strks;
 };

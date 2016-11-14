@@ -14,7 +14,7 @@ void ofApp::setup() {
     //cam.setDesiredFrameRate(30);
     cam.initGrabber(camWdth, camHght);
     
-    ofBackground(255);
+    ofBackground(0, 63, 0);
     live.allocate(camWdth, camHght);
     input.allocate(camWdth, camHght);
     output.allocate(camWdth, camHght, OF_IMAGE_GRAYSCALE);
@@ -29,7 +29,7 @@ void ofApp::setup() {
     gui.add(cannyParam1.set("cannyParam1", 300, 0, 1024));
     gui.add(cannyParam2.set("cannyParam2", 150, 0, 1024));
 
-    tntclr.setHex(0x0000ff); // resin tint color
+    tntclr.setHex(0xffaa00); // resin tint color
 }
 
 void ofApp::update() {
@@ -85,7 +85,12 @@ void ofApp::update() {
                 bmb.close();
                 bmb = bmb.getSmoothed(2, 0.5);
 
-                if (bmb.size() > 2) bmbs.push_back(bmb);
+                ofColor c = ofColor(tntclr);
+                c.setBrightness(pixels.getColor((int)src.x, (int)src.y).getBrightness());
+
+                bmbs.push_back(bmb);
+                clrs.push_back(c);
+                //strks.push_back(bmb.getBoundingBox().width);
             }
         }
 	}
@@ -95,9 +100,9 @@ void ofApp::draw() {
 
     //ofFill();
     ofSetLineWidth(2.0);  // Line widths apply to polylines
-    ofSetColor(0);
     
     for (std::size_t i = 0; i < bmbs.size(); i++) {
+        ofSetColor(clrs[i]);
         bmbs[i].draw();
     }
 
