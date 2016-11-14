@@ -28,7 +28,7 @@ void ofApp::setup() {
     gui.add(cannyParam1.set("cannyParam1", 300, 0, 1024));
     gui.add(cannyParam2.set("cannyParam2", 150, 0, 1024));
 
-    tntclr.setHex(0x0000ff); // resin tint color
+    tntclr.setHex(0x00ffaa); // resin tint color
 }
 
 void ofApp::update() {
@@ -67,7 +67,6 @@ void ofApp::update() {
 		swpr.diagram();
 
         // set cells to tinted colors based on sampled brightness
-        
         for(std::size_t i = 0; i < swpr.clls.size(); i++) {
             ofColor c = ofColor(tntclr);
             glm::vec3 src = swpr.srcs[swpr.clls[i].srcdx];
