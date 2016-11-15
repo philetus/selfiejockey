@@ -45,7 +45,7 @@ public:
     ofxCvColorImage colorImage;
     ofxCvGrayscaleImage grayImage, edgeImage;
 
-    ofParameter<int> particles;
+    ofParameter<int> particles, stroke;
     ofParameter<float> power;    
     ofParameter<bool> flip;    
     ofxPanel gui;

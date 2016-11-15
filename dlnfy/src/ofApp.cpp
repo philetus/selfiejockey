@@ -14,6 +14,7 @@ void ofApp::setup(){
     gui.setup();
     gui.add(particles.set("particles", 1000, 0, 20000));
     gui.add(power.set("power", 2, 0.5, 8.0));
+    gui.add(stroke.set("stroke", 2, 1, 5));
     gui.add(flip.set("flip", false));
 }
  
@@ -77,6 +78,12 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofFill();
+    if (flip) {
+        ofBackground(0);
+    } else {
+        ofBackground(255);
+    }
+    ofSetLineWidth(stroke);
     ofSetColor(255);
     mesh.draw(OF_MESH_WIREFRAME);
     gui.draw();
