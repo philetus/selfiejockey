@@ -4,6 +4,7 @@
 #include "ofxCv.h"
 #include "ofxGui.h"
 #include "ofxFgr.h"
+#include "TouchLog.h"
 #include "Fltr.h"
 #include "GhstFltr.h"
 #include "DlnySktchFltr.h"
@@ -39,6 +40,8 @@ public:
 
     ofSerial srl0, srl1, srl2, srl3, srl4;
     std::vector<ofSerial *> srls;
+
+    TouchLog tchlg;
 
     void checkSerial();
 

@@ -65,6 +65,9 @@ void ofApp::setup() {
     inpt.allocate(src.width, src.height, OF_IMAGE_GRAYSCALE);
     cnny.allocate(src.width, src.height, OF_IMAGE_GRAYSCALE);
 
+    // touchlog
+    tchlg.setup("card_touch_log.tsv");
+
     // gui
     gui.setup();
     gui.add(obs.minArea);
@@ -88,6 +91,7 @@ void ofApp::checkSerial() {
             int b = srls[i]->readByte();
 
             ofLogNotice() << "pillar " << i << " read: " << b;
+            tchlg.touch(i, b); // log touch to file
 
             if (b == 97) { // 97 -> 'a'
                 hallflgs[i] = false;
