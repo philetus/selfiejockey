@@ -93,6 +93,6 @@ void VrnTntFltr::update(ofPixels pxls, ofPixels edgpxls, const std::vector<ofPol
 
 void VrnTntFltr::draw() {
     // ofLogNotice() << "drawing voronoi tint mesh";
-
+    ofBackground(255);
     msh.draw(OF_MESH_FILL);
 }

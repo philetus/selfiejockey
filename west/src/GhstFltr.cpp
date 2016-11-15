@@ -82,5 +82,6 @@ void GhstFltr::update(ofPixels pxls, ofPixels edgpxls, const std::vector<ofPolyl
 }
 
 void GhstFltr::draw() {
+    ofBackground(0);
     msh.draw();    
 }

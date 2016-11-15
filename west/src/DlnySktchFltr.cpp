@@ -1,9 +1,9 @@
-#include "CnnyDlnyFltr.h"
+#include "DlnySktchFltr.h"
 
 using namespace ofxCv;
 using namespace cv;
 
-void CnnyDlnyFltr::setup(ofRectangle source, ofRectangle target) {
+void DlnySktchFltr::setup(ofRectangle source, ofRectangle target) {
     src = source;
     trgt = target; 
     xdlt = trgt.x - src.x;
@@ -13,40 +13,32 @@ void CnnyDlnyFltr::setup(ofRectangle source, ofRectangle target) {
 
     ofLogNotice() << "xdlt " << xdlt << " ydlt " << ydlt << " xscl " << xscl << " yscl " << yscl;
 
-    samples.set("canny delaunay samples", 6000, 1, 10000);
-    neg.set("neg", true);
-    doCanny.set("doCanny", false);
-    alpha.set("canny delaunay alpha", 191, 0, 255);
-
-    cnny.allocate(src.width, src.height, OF_IMAGE_GRAYSCALE);
+    samples.set("delaunay sketch samples", 8000, 1, 10000);
+    alpha.set("delaunay sketch alpha", 191, 0, 255);
+    power.set("power", 2, 0.5, 8.0);
+    stroke.set("stroke", 3, 1, 5);
+    flip.set("flip", true);
 }
 
-void CnnyDlnyFltr::update(ofPixels pxls, ofPixels edgpxls, const std::vector<ofPolyline> & fgrs) {
+void DlnySktchFltr::update(ofPixels pxls, ofPixels edgpxls, const std::vector<ofPolyline> & fgrs) {
     dlny.reset();
     msh.clear();
 
-    cnny.setFromPixels(edgpxls);
-
-    int notEdgeVal = 0;
-    if (neg) {
-        invert(cnny);
-        cnny.update();
-        edgpxls = cnny.getPixels();
-        notEdgeVal = 255;
-    } else {
-        cnny.update();
+    float low = 0;
+    float high = 1;
+    if (flip) {
+        low = 1;
+        high = 0;
     }
 
-    // monte carlo sample for points on canny edges
+    // generate random points weighted for brightness
     int pcnt = samples;
     while (pcnt > 0) {
-
-        // get random point in region of interest
-        glm::vec3 p = randInRect(src); 
-
-        // test if point is on an edge
-        int b = edgpxls[((int)p.y * src.width) + (int)p.x];
-        if (b != notEdgeVal) {
+        glm::vec3 p = randInRect(src);
+        float b = ofMap(
+            pxls.getColor((int)p.x, (int)p.y).getBrightness(),
+            0, 255, high, low);
+        if (pow(b, power) > ofRandom(1)) {
             dlny.addPoint(p);
             pcnt--;
         }
@@ -84,36 +76,17 @@ void CnnyDlnyFltr::update(ofPixels pxls, ofPixels edgpxls, const std::vector<ofP
         msh.addColor(clr);
         msh.addColor(clr);
     }
-    if (doCanny) {
-        cnny.resize(trgt.width, trgt.height);
-        cnny.update();
-    }
 }
 
-void CnnyDlnyFltr::draw() {
+void DlnySktchFltr::draw() {
     // ofLogNotice() << "drawing canny delaunay mesh";
-    ofBackground(255);
 
-    if(doCanny && neg){
-        cnny.draw(trgt.x, trgt.y);
-        ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
-        msh.draw();
-        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-    } else if (neg) {
-        ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
-        msh.draw();
-        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-    } else if (doCanny) {
+    if (flip) {
         ofBackground(0);
-        msh.draw();
-        ofEnableBlendMode(OF_BLENDMODE_ADD);
-        ofSetColor(255, 255, 255, 127);
-        cnny.draw(trgt.x, trgt.y);
-        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-        ofSetColor(255);
     } else {
-        ofBackground(0);
-        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-        msh.draw();
+        ofBackground(255);
     }
+    ofSetLineWidth(stroke);
+    //ofSetColor(255);
+    msh.draw(OF_MESH_WIREFRAME);
 }

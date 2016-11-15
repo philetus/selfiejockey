@@ -6,6 +6,7 @@
 #include "ofxFgr.h"
 #include "Fltr.h"
 #include "GhstFltr.h"
+#include "DlnySktchFltr.h"
 #include "CnnyDlnyFltr.h"
 #include "VrnTntFltr.h"
 
@@ -32,8 +33,8 @@ public:
     GhstFltr bgfltr;
 
     CnnyDlnyFltr fltr0, fltr4;
-    //DlnySktchFltr fltr1, fltr3;
-    VrnTntFltr fltr1, fltr2, fltr3;
+    DlnySktchFltr fltr1, fltr3;
+    VrnTntFltr fltr2;
     std::vector<Fltr *> fltrs;
 
     ofSerial srl0, srl1, srl2, srl3, srl4;

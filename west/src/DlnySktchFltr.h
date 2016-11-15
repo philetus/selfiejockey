@@ -9,7 +9,7 @@
 #include "ofxOpenCv.h"
 #include "ofxDelaunay.h"
 
-class CnnyDlnyFltr : public Fltr {
+class DlnySktchFltr : public Fltr {
 public:
 
     void setup(ofRectangle source, ofRectangle target);
@@ -20,8 +20,9 @@ public:
     ofVboMesh msh;
     ofImage cnny;
 
-    ofParameter<int> samples, alpha;
-    ofParameter<bool> doCanny, neg;
+    ofParameter<int> samples, stroke, alpha;
+    ofParameter<float> power;    
+    ofParameter<bool> flip;    
 
     ofRectangle src, trgt; // source & target rectangles
     float xdlt, ydlt, xscl, yscl;

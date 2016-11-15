@@ -13,7 +13,7 @@ void ofApp::setup() {
     ofLogNotice() << "cam width: " << camWdth << " cam height: " << camHght << endl;
 
     src = ofRectangle(0, 0, camWdth/2, camHght/2);
-    trgt = ofRectangle(0, 0, 1920, 1080);
+    trgt = ofRectangle(0, 0, ofGetWidth(), ofGetHeight());
 
     bgfltr.setup(src, trgt);
 
@@ -22,6 +22,7 @@ void ofApp::setup() {
     hallflgs.push_back(false);
     swtchflgs.push_back(false);
     fltr0.setup(src, trgt);
+    fltr0.samples = 8000;
     fltrs.push_back(&fltr0);
 
     srl1.setup("/dev/tty.usbmodem14721", 9600);
@@ -43,6 +44,9 @@ void ofApp::setup() {
     hallflgs.push_back(false);
     swtchflgs.push_back(false);
     fltr3.setup(src, trgt);
+    fltr3.flip = false;
+    fltr3.stroke = 2;
+    fltr3.power = 4;
     fltrs.push_back(&fltr3);
 
     srl4.setup("/dev/tty.usbmodem147421", 9600);
@@ -150,10 +154,10 @@ void ofApp::draw() {
     }
 
     // draw parameter sliders
-    gui.draw();
+    //gui.draw();
 
     // draw framerate
     std::stringstream strm;
     strm << "fps -> " << ofGetFrameRate();
-    ofDrawBitmapString(strm.str(), camWdth - 256, 32);
+    ofDrawBitmapString(strm.str(), trgt.width - 256, 32);
 }
