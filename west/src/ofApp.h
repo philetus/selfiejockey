@@ -33,9 +33,9 @@ public:
 
     GhstFltr bgfltr;
 
-    CnnyDlnyFltr fltr0, fltr4;
+    CnnyDlnyFltr fltr2, fltr4;
     DlnySktchFltr fltr1, fltr3;
-    VrnTntFltr fltr2;
+    VrnTntFltr fltr0;
     std::vector<Fltr *> fltrs;
 
     ofSerial srl0, srl1, srl2, srl3, srl4;

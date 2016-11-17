@@ -22,7 +22,6 @@ void ofApp::setup() {
     hallflgs.push_back(false);
     swtchflgs.push_back(false);
     fltr0.setup(src, trgt);
-    fltr0.samples = 8000;
     fltrs.push_back(&fltr0);
 
     srl1.setup("/dev/tty.usbmodem14721", 9600);
@@ -37,6 +36,7 @@ void ofApp::setup() {
     hallflgs.push_back(false);
     swtchflgs.push_back(false);
     fltr2.setup(src, trgt);
+    fltr2.samples = 8000;
     fltrs.push_back(&fltr2);
 
     srl3.setup("/dev/tty.usbmodem147411", 9600);
@@ -47,6 +47,7 @@ void ofApp::setup() {
     fltr3.flip = false;
     fltr3.stroke = 2;
     fltr3.power = 4;
+    fltr3.samples = 8000;
     fltrs.push_back(&fltr3);
 
     srl4.setup("/dev/tty.usbmodem147421", 9600);
@@ -90,7 +91,7 @@ void ofApp::checkSerial() {
         if (srls[i]->isInitialized() && srls[i]->available() > 0) {
             int b = srls[i]->readByte();
 
-            ofLogNotice() << "pillar " << i << " read: " << b;
+            ofLogNotice() << "pillar " << i << " read: " << b << " at " << ofGetTimestampString();
             tchlg.touch(i, b); // log touch to file
 
             if (b == 97) { // 97 -> 'a'
@@ -108,8 +109,8 @@ void ofApp::checkSerial() {
                 swtchdx = i;
             }
 
-            ofLogNotice() << "pillar " << i << " flags are now: h - " 
-                << hallflgs[i] << ", s - " << swtchflgs[i];
+            // ofLogNotice() << "pillar " << i << " flags are now: h - " 
+            //     << hallflgs[i] << ", s - " << swtchflgs[i];
 
         }
     }
