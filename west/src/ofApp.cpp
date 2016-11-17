@@ -162,7 +162,7 @@ void ofApp::draw() {
     //gui.draw();
 
     // draw framerate
-    std::stringstream strm;
-    strm << "fps -> " << ofGetFrameRate();
-    ofDrawBitmapString(strm.str(), trgt.width - 256, 32);
+    // std::stringstream strm;
+    // strm << "fps -> " << ofGetFrameRate();
+    // ofDrawBitmapString(strm.str(), trgt.width - 256, 32);
 }
