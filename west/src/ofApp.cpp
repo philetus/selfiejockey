@@ -24,7 +24,8 @@ void ofApp::setup() {
     fltr0.setup(src, trgt);
     fltrs.push_back(&fltr0);
 
-    srl1.setup("/dev/tty.usbmodem14721", 9600);
+    // srl1.setup("/dev/tty.usbmodem14721", 9600);
+    srl1.setup("/dev/tty.usbmodem1471", 9600);
     srls.push_back(&srl1);
     hallflgs.push_back(false);
     swtchflgs.push_back(false);
@@ -94,19 +95,21 @@ void ofApp::checkSerial() {
             ofLogNotice() << "pillar " << i << " read: " << b << " at " << ofGetTimestampString();
             tchlg.touch(i, b); // log touch to file
 
-            if (b == 97) { // 97 -> 'a'
+            if (b == 97) { // 97 -> 'a' - card replaced
                 hallflgs[i] = false;
-            }
-            if (b == 98) { // 98 -> 'b'
-                hallflgs[i] = true;
-            }
-            if (b == 99) { // 99 -> 'c'
-                swtchflgs[i] = false;
                 if (swtchdx == i) swtchdx = -1; // if current serial switches off set to index to -1
             }
-            if (b == 100) { // 100 -> 'd'
+            if (b == 98) { // 98 -> 'b' - card picked up
+                hallflgs[i] = true;
+                swtchdx = i; // switch on filter when card picked up
+            }
+            if (b == 99) { // 99 -> 'c' - card undipped
+                swtchflgs[i] = false;
+                // if (swtchdx == i) swtchdx = -1; // if current serial switches off set to index to -1
+            }
+            if (b == 100) { // 100 -> 'd' - card dipped
                 swtchflgs[i] = true;
-                swtchdx = i;
+                // swtchdx = i;
             }
 
             // ofLogNotice() << "pillar " << i << " flags are now: h - " 
