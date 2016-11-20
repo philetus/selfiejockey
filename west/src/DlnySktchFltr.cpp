@@ -24,21 +24,30 @@ void DlnySktchFltr::update(ofPixels pxls, ofPixels edgpxls, const std::vector<of
     dlny.reset();
     msh.clear();
 
-    float low = 0;
-    float high = 1;
-    if (flip) {
-        low = 1;
-        high = 0;
-    }
+    // float low = 0;
+    // float high = 1;
+    // if (flip) {
+    //     low = 1;
+    //     high = 0;
+    // }
 
-    // generate random points weighted for brightness
+    int notEdgeVal = 0;
+
+    // generate random points on edges
     int pcnt = samples;
     while (pcnt > 0) {
         glm::vec3 p = randInRect(src);
-        float b = ofMap(
-            pxls.getColor((int)p.x, (int)p.y).getBrightness(),
-            0, 255, high, low);
-        if (pow(b, power) > ofRandom(1)) {
+    //     float b = ofMap(
+    //         pxls.getColor((int)p.x, (int)p.y).getBrightness(),
+    //         0, 255, high, low);
+    //     if (pow(b, power) > ofRandom(1)) {
+    //         dlny.addPoint(p);
+    //         pcnt--;
+    //     }
+    // }
+        // test if point is on an edge
+        int b = edgpxls[((int)p.y * src.width) + (int)p.x];
+        if (b != notEdgeVal) {
             dlny.addPoint(p);
             pcnt--;
         }
