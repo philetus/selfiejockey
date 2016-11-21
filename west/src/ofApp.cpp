@@ -24,8 +24,8 @@ void ofApp::setup() {
     fltr0.setup(src, trgt);
     fltrs.push_back(&fltr0);
 
-    // srl1.setup("/dev/tty.usbmodem14721", 9600);
-    srl1.setup("/dev/tty.usbmodem1471", 9600);
+    srl1.setup("/dev/tty.usbmodem14721", 9600);
+    // srl1.setup("/dev/tty.usbmodem1471", 9600);
     srls.push_back(&srl1);
     hallflgs.push_back(false);
     swtchflgs.push_back(false);
@@ -41,6 +41,7 @@ void ofApp::setup() {
     fltrs.push_back(&fltr2);
 
     srl3.setup("/dev/tty.usbmodem147411", 9600);
+    // srl3.setup("/dev/tty.usbmodem1471", 9600);
     srls.push_back(&srl3);
     hallflgs.push_back(false);
     swtchflgs.push_back(false);
