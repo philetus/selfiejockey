@@ -8,8 +8,10 @@ class Touch:
 		self.dips = [] # each dip is a list of [inited, ended] times in secs
 
 	def __str__(self):
-		return "<touch pillar='" + str(self.pillar) + "' date='" + "-".join(str(d) for d in self.date) + "' initd='" + str(self.initd) + "' ended='" + str(self.ended) + "' />"
+		return "<touch pillar='" + str(self.pillar) + "' date='" + self.strdate() + "' initd='" + str(self.initd) + "' ended='" + str(self.ended) + "' />"
 
+	def strdate(self):
+		return "-".join(str(d) for d in self.date)
 def parse_date(dtstr):
 
 	# date string format: 2016-11-15-14-08-05-426
@@ -30,7 +32,7 @@ def parse_initd(intd, endd):
 	hours = str(int(intd) / (60 * 60))
 	return ":".join([hours, mins, secs]), str(dlta)
 
-touches = {}
+touches = [[], [], [], [], []]
 touchstaks = [[], [], [], [], []]
 
 with open("card_touch_log.tsv") as tf:
@@ -52,10 +54,7 @@ with open("card_touch_log.tsv") as tf:
 				lst = touchstaks[plr].pop()
 				lst.ended = scs
 
-				if not lst.date in touches:
-					touches[lst.date] = []
-
-				touches[lst.date].append(lst)
+				touches[lst.pillar].append(lst)
 
 		elif cd == 100: # d -> init dip
 			if len(touchstaks[plr]) > 0:
@@ -71,15 +70,17 @@ with open("card_touch_log.tsv") as tf:
 		else:
 			print("unexpected code:", cd)
 
-with open("touch_report.txt", 'w') as rf:
+with open("touch_report.csv", 'w') as rf:
 
-	for dt in sorted(touches.keys()):
+	rf.write("pillar,\tday,\tstart,\tlength\n")
+	
+	for plr in range(5):
 
-		rf.write("\n" + "-".join(str(d) for d in dt) + " touches: " + str(len(touches[dt])) + "\n")
+		rf.write("\n")
 
-		for tch in touches[dt]:
+		for tch in touches[plr]:
 			tm, dlta = parse_initd(tch.initd, tch.ended)
-			rf.write("\tpillar " + str(tch.pillar) + " time: " + tm + " length: " + dlta + " seconds\n")
-			for dp in tch.dips:
-				tm, dlta = parse_initd(dp[0], dp[1])
-				rf.write("\t\tdip time: " + tm + " length " + dlta + " seconds\n")
+			rf.write(str(tch.pillar) + ",\t" + tch.strdate() + ",\t" + tm + ",\t" + dlta + "\n")
+			# for dp in tch.dips:
+			# 	tm, dlta = parse_initd(dp[0], dp[1])
+			# 	rf.write("\t\tdip time: " + tm + " length " + dlta + " seconds\n")
